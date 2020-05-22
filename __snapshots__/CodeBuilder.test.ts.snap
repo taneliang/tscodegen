@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CodeBuilder addManualSection should generate manual section using a new builder 1`] = `
+"
+/* BEGIN MANUAL SECTION mansec */
+console.log(\\"New manual section\\");
+/* END MANUAL SECTION */
+"
+`;
+
+exports[`CodeBuilder addManualSection should retain existing manual section content if present 1`] = `
+"
+/* BEGIN MANUAL SECTION mansec */
+console.log(\\"Existing manual section\\");
+/* END MANUAL SECTION */
+"
+`;
+
+exports[`CodeBuilder should work 1`] = `
+"import path from \\"path\\";
+import fs from \\"fs\\";
+/* BEGIN MANUAL SECTION custom_imports */
+
+/* END MANUAL SECTION */
+class Steam extends Water {
+  constructor() {
+    this.boil();
+  }
+
+  boil() {
+    /* BEGIN MANUAL SECTION boil_body */
+    new God().magic();
+    /* END MANUAL SECTION */
+  }
+}
+"
+`;
