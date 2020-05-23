@@ -1,7 +1,6 @@
 export type ManualSectionMap = { [sectionKey: string]: string };
 
-// If you change this, be sure to update all the match indices!
-const sectionMatchRegExp = /\/\* BEGIN MANUAL SECTION (\S+) \*\/((.|\n)+?|)\/\* END MANUAL SECTION \*\//gm;
+const sectionMatchRegExp = /\/\* BEGIN MANUAL SECTION (?<key>\S+) \*\/(?<code>(.|\n)+?|)\/\* END MANUAL SECTION \*\//gm;
 
 export function createManualSection(sectionKey: string, sectionCode: string): string {
   // Ensure section key is non-empty and contains no whitespaces
@@ -21,7 +20,7 @@ export function extractManualSections(code: string): ManualSectionMap {
   const allMatches = code.matchAll(sectionMatchRegExp);
   const manualSections: ManualSectionMap = {};
   Array.from(allMatches).forEach((match: RegExpMatchArray) => {
-    manualSections[match[1]] = match[2].trim();
+    manualSections[match.groups!.key] = match.groups!.code.trim();
   });
   return manualSections;
 }
