@@ -1,13 +1,14 @@
 import prettier from 'prettier';
 import { createManualSection } from './sections/manual';
+import type { ManualSectionMap } from './types/ManualSectionMap';
 
 export class CodeBuilder {
   #gennedCode = '';
   #hasManualSections = false;
 
-  readonly #existingManualSections: { [sectionKey: string]: string };
+  readonly #existingManualSections: ManualSectionMap;
 
-  constructor(manualSections: { [sectionKey: string]: string }) {
+  constructor(manualSections: ManualSectionMap) {
     this.#existingManualSections = manualSections;
   }
 

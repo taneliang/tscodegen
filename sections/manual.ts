@@ -1,4 +1,4 @@
-export type ManualSectionMap = { [sectionKey: string]: string };
+import type { ManualSectionMap } from '../types/ManualSectionMap';
 
 const sectionMatchRegExp = /\/\* BEGIN MANUAL SECTION (?<key>\S+) \*\/(?<code>(.|\n)+?|)\/\* END MANUAL SECTION \*\//gm;
 
