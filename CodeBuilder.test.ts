@@ -18,14 +18,12 @@ describe(CodeBuilder, () => {
         someOtherManualSectionKey: 'ANOTHER EXISTING MANUAL SECTION; SHOULD NOT APPEAR',
       });
       builder.addManualSection('mansec', mockSectionBuilder);
+      expect(mockSectionBuilder).toBeCalledTimes(1);
 
       // Expect manual section to be built correctly, i.e. with content of
       // section builder, with the provided section name and valid demarcations.
       expect(builder.toString()).toMatchSnapshot();
-
-      // Expect a new builder to be used for manual section.
-      expect(mockSectionBuilder).toBeCalledTimes(1);
-      expect(mockSectionBuilder).not.toBeCalledWith(builder);
+      expect(builder.hasManualSections()).toBe(true);
     });
 
     test('should retain existing manual section content if present', () => {

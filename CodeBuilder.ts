@@ -2,7 +2,8 @@ import prettier from 'prettier';
 import { createManualSection } from './sections/manual';
 
 export class CodeBuilder {
-  private gennedCode = '';
+  #gennedCode = '';
+  #hasManualSections = false;
 
   readonly #existingManualSections: { [sectionKey: string]: string };
 
@@ -11,7 +12,7 @@ export class CodeBuilder {
   }
 
   insertCode(code: string): this {
-    this.gennedCode += code;
+    this.#gennedCode += code;
     return this;
   }
 
@@ -25,16 +26,21 @@ export class CodeBuilder {
     } else {
       sectionContent = sectionBuilder(new CodeBuilder(this.#existingManualSections)).toString();
     }
-    this.gennedCode += `\n${createManualSection(sectionKey, sectionContent)}\n`;
+    this.#gennedCode += `\n${createManualSection(sectionKey, sectionContent)}\n`;
+    this.#hasManualSections = true;
     return this;
   }
 
   format(): this {
-    this.gennedCode = prettier.format(this.gennedCode, { parser: 'typescript' });
+    this.#gennedCode = prettier.format(this.#gennedCode, { parser: 'typescript' });
     return this;
   }
 
-  toString() {
-    return this.gennedCode;
+  toString(): string {
+    return this.#gennedCode;
+  }
+
+  hasManualSections(): boolean {
+    return this.#hasManualSections;
   }
 }
