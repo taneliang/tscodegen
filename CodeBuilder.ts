@@ -1,4 +1,5 @@
 import prettier from 'prettier';
+import { createManualSection } from './sections/manual';
 
 export class CodeBuilder {
   private gennedCode = '';
@@ -18,27 +19,17 @@ export class CodeBuilder {
     sectionKey: string,
     sectionBuilder: (manualSectionBuilder: CodeBuilder) => CodeBuilder,
   ) {
-    // Ensure section key contains no whitespaces
-    if (/\s/.test(sectionKey)) {
-      throw new Error(
-        `Manual section keys should not contain whitespaces. Received "${sectionKey}", which does.`,
-      );
-    }
-
-    this.gennedCode += `\n/* BEGIN MANUAL SECTION ${sectionKey} */\n`;
-
+    let sectionContent: string;
     if (this.#existingManualSections[sectionKey]) {
-      this.gennedCode += this.#existingManualSections[sectionKey];
+      sectionContent = this.#existingManualSections[sectionKey];
     } else {
-      this.gennedCode += sectionBuilder(new CodeBuilder(this.#existingManualSections)).toString();
+      sectionContent = sectionBuilder(new CodeBuilder(this.#existingManualSections)).toString();
     }
-
-    this.gennedCode += `\n/* END MANUAL SECTION */\n`;
+    this.gennedCode += `\n${createManualSection(sectionKey, sectionContent)}\n`;
     return this;
   }
 
   format(): this {
-    // TODO: Call Prettier
     this.gennedCode = prettier.format(this.gennedCode, { parser: 'typescript' });
     return this;
   }

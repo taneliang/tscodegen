@@ -10,10 +10,6 @@ describe(CodeBuilder, () => {
   });
 
   describe(CodeBuilder.prototype.addManualSection, () => {
-    test('should throw if section key has whitespaces', () => {
-      expect(() => new CodeBuilder({}).addManualSection('a b', (b) => b)).toThrow();
-    });
-
     test('should generate manual section using a new builder', () => {
       const mockSectionBuilder = jest.fn().mockImplementation(() => ({
         toString: () => 'console.log("New manual section");',

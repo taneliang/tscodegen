@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createManualSection should generate manual section with key and code 1`] = `
+"/* BEGIN MANUAL SECTION SomeSection_冠状病毒-<>{}()[]!@#$%^&*etc🦠 */
+console.log(\\"Multiline section content\\");
+    // Define undefined to undefined
+    undefined = \\"undefined\\";
+/* END MANUAL SECTION */"
+`;
