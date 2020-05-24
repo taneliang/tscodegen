@@ -43,6 +43,20 @@ export function removeFileDocblock(code: string): string {
 }
 
 /**
+ * Creates a docblock from `docblockContent`.
+ *
+ * @param docblockContent Plain docblock content (i.e. without "*"s at the start of each line)
+ */
+export function createDocblock(docblockContent: string): string {
+  const docblockContentWithLeadingStars = docblockContent
+    .split('\n')
+    .map((line) => ` ${`* ${line}`.trim()}`) // " *" for empty lines, ` * ${line}` otherwise
+    .join('\n');
+  const docblock = `/**\n${docblockContentWithLeadingStars}\n */`;
+  return docblock;
+}
+
+/**
  * Prepends `code` with `dockblockContent`. Assumes `code` does not already
  * have a file docblock.
  *
@@ -50,10 +64,5 @@ export function removeFileDocblock(code: string): string {
  * @param docblockContent Plain docblock content (i.e. without "*"s at the start of each line)
  */
 export function prependFileDocblock(code: string, docblockContent: string): string {
-  const docblockContentWithLeadingStars = docblockContent
-    .split('\n')
-    .map((line) => ` ${`* ${line}`.trim()}`) // " *" for empty lines, ` * ${line}` otherwise
-    .join('\n');
-  const docblock = `/**\n${docblockContentWithLeadingStars}\n */`;
-  return `${docblock}\n\n${code.trimStart()}`;
+  return `${createDocblock(docblockContent)}\n\n${code.trimStart()}`;
 }

@@ -11,9 +11,9 @@ export function createManualSection(sectionKey: string, sectionCode: string): st
   }
 
   let processedSectionCode = sectionCode.trim();
-  processedSectionCode = processedSectionCode.length > 0 ? `\n${processedSectionCode}\n` : '\n';
+  processedSectionCode = processedSectionCode.length > 0 ? `${processedSectionCode}\n` : '';
 
-  return `/* BEGIN MANUAL SECTION ${sectionKey} */${processedSectionCode}/* END MANUAL SECTION */`;
+  return `/* BEGIN MANUAL SECTION ${sectionKey} */\n${processedSectionCode}/* END MANUAL SECTION */`;
 }
 
 export function extractManualSections(code: string): ManualSectionMap {

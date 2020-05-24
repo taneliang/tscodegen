@@ -1,16 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CodeBuilder addManualSection should generate manual section using a new builder 1`] = `
+exports[`CodeBuilder addBlock should generate block using a new builder 1`] = `
+"function cancel(culture: Culture) {
+console.log(\\"New block content section\\");
+}
 "
-/* BEGIN MANUAL SECTION mansec */
+`;
+
+exports[`CodeBuilder addDocblock should add multiline docblock with appended newline 1`] = `
+"/**
+ * Add a block of code, i.e. code with braces around them.
+ *
+ * @param codeBeforeBlock Code before the block's \\"{\\", e.g. \\"if (a === b)\\"
+ * @param blockBuilder A function that uses \`blockBuilder\` to build the code
+ * in the block.
+ */
+"
+`;
+
+exports[`CodeBuilder addDocblock should add single line docblock with appended newline 1`] = `
+"/**
+ * Only the wisest, non-binary hominids can see the code below.
+ */
+"
+`;
+
+exports[`CodeBuilder addManualSection should generate manual section using a new builder 1`] = `
+"/* BEGIN MANUAL SECTION mansec */
 console.log(\\"New manual section\\");
 /* END MANUAL SECTION */
 "
 `;
 
 exports[`CodeBuilder addManualSection should retain existing manual section content if present 1`] = `
-"
-/* BEGIN MANUAL SECTION mansec */
+"/* BEGIN MANUAL SECTION mansec */
 console.log(\\"Existing manual section\\");
 /* END MANUAL SECTION */
 "
@@ -19,8 +42,10 @@ console.log(\\"Existing manual section\\");
 exports[`CodeBuilder should work 1`] = `
 "import path from \\"path\\";
 import fs from \\"fs\\";
+
 /* BEGIN MANUAL SECTION custom_imports */
 /* END MANUAL SECTION */
+
 class Steam extends Water {
   constructor() {
     this.boil();

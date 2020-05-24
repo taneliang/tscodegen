@@ -1,4 +1,9 @@
-import { getFileDocblock, removeFileDocblock, prependFileDocblock } from './docblock';
+import {
+  getFileDocblock,
+  removeFileDocblock,
+  prependFileDocblock,
+  createDocblock,
+} from './docblock';
 
 describe(getFileDocblock, () => {
   test('should return undefined if code does not contain docblock', () => {
@@ -152,18 +157,10 @@ function add(a, b) {
   });
 });
 
-describe(prependFileDocblock, () => {
-  test('should prepend docblock correctly', () => {
+describe(createDocblock, () => {
+  test('should create docblock correctly', () => {
     expect(
-      prependFileDocblock(
-        `
-/**
- * Another docblock that should be ignored
- */
-function add(a, b) {
-  return a + b;
-}
-        `.trim() + '\n',
+      createDocblock(
         `
 File docblock
 
@@ -181,15 +178,34 @@ More info
  *
  * @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
  */
+      `.trim(),
+    );
+  });
+});
 
+describe(prependFileDocblock, () => {
+  test('should prepend docblock correctly', () => {
+    const code =
+      `
 /**
  * Another docblock that should be ignored
  */
 function add(a, b) {
   return a + b;
 }
-      `.trim() + '\n',
-    );
+    `.trim() + '\n';
+
+    const docblockContent = `
+File docblock
+
+More info
+
+@partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
+    `.trim();
+
+    const result = prependFileDocblock(code, docblockContent);
+    expect(result.indexOf(createDocblock(docblockContent))).toBe(0);
+    expect(result).toContain(code);
   });
 });
 
