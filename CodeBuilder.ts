@@ -51,9 +51,11 @@ export class CodeBuilder {
     codeBeforeBlock: string,
     blockBuilder: (blockBuilder: CodeBuilder) => CodeBuilder,
   ): this {
+    const builtBlockBuilder = blockBuilder(new CodeBuilder(this.#existingManualSections));
+    this.#hasManualSections = this.#hasManualSections || builtBlockBuilder.hasManualSections();
     return this.add(codeBeforeBlock)
       .addLine(' {')
-      .addLine(blockBuilder(new CodeBuilder(this.#existingManualSections)).toString())
+      .addLine(builtBlockBuilder.toString())
       .addLine('}');
   }
 

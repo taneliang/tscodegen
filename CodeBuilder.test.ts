@@ -40,6 +40,7 @@ in the block.
 
       const mockBuilder = jest.fn().mockImplementation(() => ({
         toString: () => mockBuiltCode,
+        hasManualSections: () => false,
       }));
       const builder = new CodeBuilder({});
       builder.addBlock(codeBeforeBlock, mockBuilder);
@@ -51,7 +52,37 @@ in the block.
       expect(builder.toString().indexOf(`${codeBeforeBlock} {\n`)).toBe(0);
       expect(builder.toString()).toContain(mockBuiltCode);
       expect(builder.toString()).toMatchSnapshot();
+      expect(builder.hasManualSections()).toBe(builder.hasManualSections());
+    });
+
+    test('should set hasManualSections to true if added section has a manual section', () => {
+      const mockBuilderWithManualSections = jest.fn().mockImplementation(() => ({
+        toString: () => '',
+        hasManualSections: () => true,
+      }));
+      const mockBuilderWithoutManualSections = jest.fn().mockImplementation(() => ({
+        toString: () => '',
+        hasManualSections: () => false,
+      }));
+
+      const builder = new CodeBuilder({});
+
+      // Sanity check: expect blank builder to not have any manual sections
       expect(builder.hasManualSections()).toBe(false);
+
+      // Expect no change if added block has no manual sections
+      builder.addBlock('', mockBuilderWithoutManualSections);
+      expect(builder.hasManualSections()).toBe(false);
+
+      // Expect change to true if added block has manual sections
+      builder.addBlock('', mockBuilderWithManualSections);
+      expect(builder.hasManualSections()).toBe(true);
+
+      // Expect no change if the builder already has manual sections
+      builder.addBlock('', mockBuilderWithoutManualSections);
+      expect(builder.hasManualSections()).toBe(true);
+      builder.addBlock('', mockBuilderWithManualSections);
+      expect(builder.hasManualSections()).toBe(true);
     });
   });
 
