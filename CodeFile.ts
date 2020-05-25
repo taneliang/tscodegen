@@ -9,6 +9,7 @@ import { extractManualSections } from './sections/manual';
 export class CodeFile {
   readonly #sourceFilePath: string;
   #fileContents = '';
+  #hasPendingChanges = false;
 
   constructor(sourceFilePath: string) {
     this.#sourceFilePath = sourceFilePath;
@@ -33,7 +34,9 @@ export class CodeFile {
   build(builderBuilder: (builder: CodeBuilder) => CodeBuilder): this {
     const builder = builderBuilder(new CodeBuilder(extractManualSections(this.#fileContents)));
     const builtCode = builder.toString();
+    const oldFileContents = this.#fileContents;
     this.#fileContents = lockCode(builtCode, builder.hasManualSections());
+    this.#hasPendingChanges = oldFileContents !== this.#fileContents;
     return this;
   }
 
@@ -45,10 +48,16 @@ export class CodeFile {
   }
 
   /**
-   * Writes the in-memory representation of the file's source code to the
-   * `sourceFilePath` this object was constructed with.
+   * Save to `sourceFilePath` if the in-memory representation of the code has
+   * been changed since the file was read.
+   *
+   * @param force If true, will write to disk even if there are no pending
+   * changes.
    */
-  saveToFile() {
-    fs.writeFileSync(this.#sourceFilePath, this.#fileContents, 'utf-8');
+  saveToFile(force: boolean = false) {
+    if (force || this.#hasPendingChanges) {
+      fs.writeFileSync(this.#sourceFilePath, this.#fileContents, 'utf-8');
+      this.#hasPendingChanges = false;
+    }
   }
 }

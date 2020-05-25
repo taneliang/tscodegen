@@ -1,5 +1,5 @@
-import fs from 'fs';
 import mockFs from 'mock-fs';
+import fs from 'fs';
 import { CodeFile } from './CodeFile';
 import { CodeBuilder } from './CodeBuilder';
 
@@ -79,10 +79,30 @@ describe(CodeFile, () => {
 
   describe(CodeFile.prototype.saveToFile, () => {
     test('should save file contents to path passed at construction', () => {
+      const writeFileSyncSpy = jest.spyOn(fs, 'writeFileSync');
       const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
-      const builtFile = new CodeFile(CODE_PATH).build(mockBuilderBuilder);
-      builtFile.saveToFile();
-      expect(fs.readFileSync(CODE_PATH, 'utf-8')).toBe(builtFile.toString());
+
+      const file = new CodeFile(CODE_PATH);
+
+      // Sanity check; expect no existing writes to file
+      expect(writeFileSyncSpy).not.toHaveBeenCalled();
+
+      // Expect no writes to disk if file hasn't been changed after construction
+      file.saveToFile();
+      expect(writeFileSyncSpy).not.toHaveBeenCalled();
+
+      // Expect correct write to disk
+      file.build(mockBuilderBuilder);
+      file.saveToFile();
+      expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+      expect(fs.readFileSync(CODE_PATH, 'utf-8')).toBe(file.toString());
+
+      // Expect no writes to disk if file hasn't been changed after write
+      file.saveToFile();
+      expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+
+      writeFileSyncSpy.mockReset();
+      writeFileSyncSpy.mockRestore();
     });
   });
 });
