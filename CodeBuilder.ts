@@ -85,7 +85,11 @@ export class CodeBuilder {
    * Formats the stored code with Prettier.
    */
   format(): this {
-    this.#gennedCode = prettier.format(this.#gennedCode, { parser: 'typescript' });
+    const prettierOptions = prettier.resolveConfig.sync(process.cwd());
+    this.#gennedCode = prettier.format(this.#gennedCode, {
+      ...(prettierOptions ?? {}),
+      parser: 'typescript',
+    });
     return this;
   }
 
