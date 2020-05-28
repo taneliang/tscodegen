@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "TypeScript string-based code generation tool, with hashed files and manually editable sections",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "repository": "git@github.com:taneliang/tscodegen.git",
   "author": "E-Liang Tan <eliang@eliangtan.com>",
   "license": "MIT",
@@ -10,6 +11,8 @@
     "node": ">=12.4.0"
   },
   "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc --project tsconfig.dist.json",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "lint": "yarn lint:code && yarn lint:misc",
