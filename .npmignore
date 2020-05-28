@@ -1,3 +1,4 @@
-*.js
-*.json
+.eslintrc.json
+jest.config.js
+tsconfig.*
 src
