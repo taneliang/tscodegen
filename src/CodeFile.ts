@@ -1,20 +1,20 @@
-import fs from 'fs';
-import { CodeBuilder } from './CodeBuilder';
-import { verifyLock, lockCode } from './codelock';
-import { extractManualSections } from './sections/manual';
+import fs from "fs";
+import { CodeBuilder } from "./CodeBuilder";
+import { verifyLock, lockCode } from "./codelock";
+import { extractManualSections } from "./sections/manual";
 
 /**
  * Represents and manipulates a generated code file.
  */
 export class CodeFile {
   readonly #sourceFilePath: string;
-  #fileContents = '';
+  #fileContents = "";
   #hasPendingChanges = false;
 
   constructor(sourceFilePath: string) {
     this.#sourceFilePath = sourceFilePath;
     if (fs.existsSync(sourceFilePath)) {
-      this.#fileContents = fs.readFileSync(sourceFilePath, 'utf-8');
+      this.#fileContents = fs.readFileSync(sourceFilePath, "utf-8");
     }
   }
 
@@ -32,7 +32,9 @@ export class CodeFile {
    * @param builderBuilder A builder that builds a replacement source.
    */
   build(builderBuilder: (builder: CodeBuilder) => CodeBuilder): this {
-    const builder = builderBuilder(new CodeBuilder(extractManualSections(this.#fileContents)));
+    const builder = builderBuilder(
+      new CodeBuilder(extractManualSections(this.#fileContents))
+    );
     const builtCode = builder.toString();
     const oldFileContents = this.#fileContents;
     this.#fileContents = lockCode(builtCode, builder.hasManualSections());
@@ -56,7 +58,7 @@ export class CodeFile {
    */
   saveToFile(force: boolean = false) {
     if (force || this.#hasPendingChanges) {
-      fs.writeFileSync(this.#sourceFilePath, this.#fileContents, 'utf-8');
+      fs.writeFileSync(this.#sourceFilePath, this.#fileContents, "utf-8");
       this.#hasPendingChanges = false;
     }
   }

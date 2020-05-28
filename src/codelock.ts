@@ -1,6 +1,10 @@
-import crypto from 'crypto';
-import { removeFileDocblock, getFileDocblock, prependFileDocblock } from './sections/docblock';
-import { emptyManualSections } from './sections/manual';
+import crypto from "crypto";
+import {
+  removeFileDocblock,
+  getFileDocblock,
+  prependFileDocblock,
+} from "./sections/docblock";
+import { emptyManualSections } from "./sections/manual";
 
 interface CodelockInfo {
   hash: string;
@@ -19,7 +23,7 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
     return undefined;
   }
 
-  const docblockLines = docblock.split('\n');
+  const docblockLines = docblock.split("\n");
   if (docblockLines.length === 0) {
     return undefined;
   }
@@ -27,7 +31,9 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
   // Expect codelock info to be on the last line.
   const lockline = docblockLines[docblockLines.length - 1];
 
-  const editableMatch = lockline.match(/^@generated-editable Codelock<<(?<hash>\S+?)>>$/);
+  const editableMatch = lockline.match(
+    /^@generated-editable Codelock<<(?<hash>\S+?)>>$/
+  );
   if (editableMatch) {
     return {
       hash: editableMatch.groups!.hash,
@@ -35,7 +41,9 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
     };
   }
 
-  const uneditableMatch = lockline.match(/^@generated Codelock<<(?<hash>\S+?)>>$/);
+  const uneditableMatch = lockline.match(
+    /^@generated Codelock<<(?<hash>\S+?)>>$/
+  );
   if (uneditableMatch) {
     return {
       hash: uneditableMatch.groups!.hash,
@@ -55,8 +63,14 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
  * @returns Lock hash for `code`.
  */
 function computeHash(code: string, shouldEmptyManualSections: boolean): string {
-  const hashableCode = (shouldEmptyManualSections ? emptyManualSections(code) : code).trim();
-  return crypto.createHash('shake128', { outputLength: 24 }).update(hashableCode).digest('base64');
+  const hashableCode = (shouldEmptyManualSections
+    ? emptyManualSections(code)
+    : code
+  ).trim();
+  return crypto
+    .createHash("shake128", { outputLength: 24 })
+    .update(hashableCode)
+    .digest("base64");
 }
 
 /**
@@ -101,6 +115,9 @@ export function verifyLock(lockedCode: string): boolean {
   }
   return (
     codeblockInfo.hash ===
-    computeHash(removeFileDocblock(lockedCode), codeblockInfo.manualSectionsAllowed)
+    computeHash(
+      removeFileDocblock(lockedCode),
+      codeblockInfo.manualSectionsAllowed
+    )
   );
 }

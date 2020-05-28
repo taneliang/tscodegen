@@ -3,41 +3,41 @@ import {
   removeFileDocblock,
   prependFileDocblock,
   createDocblock,
-} from './docblock';
+} from "./docblock";
 
 describe(getFileDocblock, () => {
-  test('should return undefined if code does not contain docblock', () => {
-    expect(getFileDocblock('')).toBeUndefined();
+  test("should return undefined if code does not contain docblock", () => {
+    expect(getFileDocblock("")).toBeUndefined();
     expect(
       getFileDocblock(
         `
 function add(a, b) {
   return a + b;
 }
-        `.trim(),
-      ),
+        `.trim()
+      )
     ).toBeUndefined();
   });
 
-  test('should return undefined if code does not start with docblock', () => {
+  test("should return undefined if code does not start with docblock", () => {
     expect(
       getFileDocblock(`
 /**
  * File docblock with a newline above it
  */
-      `),
+      `)
     ).toBeUndefined();
   });
 
-  test('should return undefined if docblock is malformed', () => {
+  test("should return undefined if docblock is malformed", () => {
     expect(
       getFileDocblock(
         `
 /*
  * File "docblock" without the second star in the first line
  */
-        `.trim(),
-      ),
+        `.trim()
+      )
     ).toBeUndefined();
     expect(
       getFileDocblock(
@@ -45,12 +45,12 @@ function add(a, b) {
 /**
  File "docblock" without the leading star in a line
  */
-        `.trim(),
-      ),
+        `.trim()
+      )
     ).toBeUndefined();
   });
 
-  test('should return docblock without leading stars', () => {
+  test("should return docblock without leading stars", () => {
     expect(
       getFileDocblock(
         `
@@ -68,8 +68,8 @@ function add(a, b) {
 function add(a, b) {
   return a + b;
 }
-        `.trim(),
-      ),
+        `.trim()
+      )
     ).toBe(
       `
 File docblock
@@ -77,7 +77,7 @@ File docblock
 More info
 
 @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
-      `.trim(),
+      `.trim()
     );
   });
 });
@@ -87,18 +87,18 @@ describe(removeFileDocblock, () => {
     expect(removeFileDocblock(code)).toBe(code);
   }
 
-  test('should passthrough files without docblocks', () => {
-    expectRemoveFileDocblockToPassthrough('');
+  test("should passthrough files without docblocks", () => {
+    expectRemoveFileDocblockToPassthrough("");
     expectRemoveFileDocblockToPassthrough(
       `
 function add(a, b) {
   return a + b;
 }
-      `.trim(),
+      `.trim()
     );
   });
 
-  test('should passthrough files that does not start with docblock', () => {
+  test("should passthrough files that does not start with docblock", () => {
     expectRemoveFileDocblockToPassthrough(`
 /**
  * File docblock with a newline above it
@@ -106,13 +106,13 @@ function add(a, b) {
     `);
   });
 
-  test('should passthrough files with malformed docblocks', () => {
+  test("should passthrough files with malformed docblocks", () => {
     expectRemoveFileDocblockToPassthrough(
       `
 /*
  * File "docblock" without the second star in the first line
  */
-      `.trim(),
+      `.trim()
     );
 
     expectRemoveFileDocblockToPassthrough(
@@ -120,11 +120,11 @@ function add(a, b) {
 /**
  File "docblock" without the leading star in a line
  */
-      `.trim(),
+      `.trim()
     );
   });
 
-  test('should return code without docblock', () => {
+  test("should return code without docblock", () => {
     expect(
       removeFileDocblock(
         `
@@ -142,8 +142,8 @@ function add(a, b) {
 function add(a, b) {
   return a + b;
 }
-        `.trim() + '\n', // Append newline to ensure we don't trim end
-      ),
+        `.trim() + "\n" // Append newline to ensure we don't trim end
+      )
     ).toBe(
       `
 /**
@@ -152,13 +152,13 @@ function add(a, b) {
 function add(a, b) {
   return a + b;
 }
-`,
+`
     );
   });
 });
 
 describe(createDocblock, () => {
-  test('should create docblock correctly', () => {
+  test("should create docblock correctly", () => {
     expect(
       createDocblock(
         `
@@ -167,8 +167,8 @@ File docblock
 More info
 
 @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
-        `.trim(),
-      ),
+        `.trim()
+      )
     ).toBe(
       `
 /**
@@ -178,13 +178,13 @@ More info
  *
  * @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
  */
-      `.trim(),
+      `.trim()
     );
   });
 });
 
 describe(prependFileDocblock, () => {
-  test('should prepend docblock correctly', () => {
+  test("should prepend docblock correctly", () => {
     const code =
       `
 /**
@@ -193,7 +193,7 @@ describe(prependFileDocblock, () => {
 function add(a, b) {
   return a + b;
 }
-    `.trim() + '\n';
+    `.trim() + "\n";
 
     const docblockContent = `
 File docblock
@@ -209,7 +209,7 @@ More info
   });
 });
 
-describe('reversibility', () => {
+describe("reversibility", () => {
   const docblockContent = `
 File docblock
 
@@ -227,11 +227,15 @@ function add(a, b) {
 }
 `;
 
-  test('prepend -> get should return same docblock content', () => {
-    expect(getFileDocblock(prependFileDocblock(code, docblockContent))).toBe(docblockContent);
+  test("prepend -> get should return same docblock content", () => {
+    expect(getFileDocblock(prependFileDocblock(code, docblockContent))).toBe(
+      docblockContent
+    );
   });
 
-  test('prepend -> remove should return original code', () => {
-    expect(removeFileDocblock(prependFileDocblock(code, docblockContent))).toBe(code);
+  test("prepend -> remove should return original code", () => {
+    expect(removeFileDocblock(prependFileDocblock(code, docblockContent))).toBe(
+      code
+    );
   });
 });

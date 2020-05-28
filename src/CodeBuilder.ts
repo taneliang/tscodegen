@@ -1,11 +1,10 @@
-import prettier from 'prettier';
-import _ from 'lodash';
-import { createManualSection } from './sections/manual';
-import type { ManualSectionMap } from './types/ManualSectionMap';
-import { createDocblock } from './sections/docblock';
+import prettier from "prettier";
+import { createManualSection } from "./sections/manual";
+import type { ManualSectionMap } from "./types/ManualSectionMap";
+import { createDocblock } from "./sections/docblock";
 
 export class CodeBuilder {
-  #gennedCode = '';
+  #gennedCode = "";
   #hasManualSections = false;
 
   readonly #existingManualSections: ManualSectionMap;
@@ -25,8 +24,8 @@ export class CodeBuilder {
   /**
    * Appends `code` and a newline. Call without arguments to insert a newline.
    */
-  addLine(code: string = ''): this {
-    this.#gennedCode += code + '\n';
+  addLine(code: string = ""): this {
+    this.#gennedCode += code + "\n";
     return this;
   }
 
@@ -49,14 +48,17 @@ export class CodeBuilder {
    */
   addBlock(
     codeBeforeBlock: string,
-    blockBuilder: (blockBuilder: CodeBuilder) => CodeBuilder,
+    blockBuilder: (blockBuilder: CodeBuilder) => CodeBuilder
   ): this {
-    const builtBlockBuilder = blockBuilder(new CodeBuilder(this.#existingManualSections));
-    this.#hasManualSections = this.#hasManualSections || builtBlockBuilder.hasManualSections();
+    const builtBlockBuilder = blockBuilder(
+      new CodeBuilder(this.#existingManualSections)
+    );
+    this.#hasManualSections =
+      this.#hasManualSections || builtBlockBuilder.hasManualSections();
     return this.add(codeBeforeBlock)
-      .addLine(' {')
+      .addLine(" {")
       .addLine(builtBlockBuilder.toString())
-      .addLine('}');
+      .addLine("}");
   }
 
   /**
@@ -69,13 +71,15 @@ export class CodeBuilder {
    */
   addManualSection(
     sectionKey: string,
-    sectionBuilder: (manualSectionBuilder: CodeBuilder) => CodeBuilder,
+    sectionBuilder: (manualSectionBuilder: CodeBuilder) => CodeBuilder
   ): this {
     let sectionContent: string;
     if (this.#existingManualSections[sectionKey]) {
       sectionContent = this.#existingManualSections[sectionKey];
     } else {
-      sectionContent = sectionBuilder(new CodeBuilder(this.#existingManualSections)).toString();
+      sectionContent = sectionBuilder(
+        new CodeBuilder(this.#existingManualSections)
+      ).toString();
     }
     this.#hasManualSections = true;
     return this.addLine(createManualSection(sectionKey, sectionContent));
@@ -88,7 +92,7 @@ export class CodeBuilder {
     const prettierOptions = prettier.resolveConfig.sync(process.cwd());
     this.#gennedCode = prettier.format(this.#gennedCode, {
       ...(prettierOptions ?? {}),
-      parser: 'typescript',
+      parser: "typescript",
     });
     return this;
   }

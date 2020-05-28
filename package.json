@@ -11,7 +11,8 @@
   },
   "scripts": {
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write 'src/**/*.ts' './*.{js,json,md}'"
   },
   "dependencies": {
     "prettier": "^2.0.5"

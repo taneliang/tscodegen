@@ -19,9 +19,9 @@ export function getFileDocblock(code: string): string | undefined {
   return (
     rawContents
       // Remove each line's leading " *"
-      .split('\n')
-      .map((line) => line.substring(' *'.length).trim())
-      .join('\n')
+      .split("\n")
+      .map((line) => line.substring(" *".length).trim())
+      .join("\n")
       // Remove trailing \n
       .trim()
   );
@@ -39,7 +39,7 @@ export function removeFileDocblock(code: string): string {
   if (!code.match(docblockMatchRegExp)) {
     return code;
   }
-  return code.replace(docblockMatchRegExp, '');
+  return code.replace(docblockMatchRegExp, "");
 }
 
 /**
@@ -49,9 +49,9 @@ export function removeFileDocblock(code: string): string {
  */
 export function createDocblock(docblockContent: string): string {
   const docblockContentWithLeadingStars = docblockContent
-    .split('\n')
+    .split("\n")
     .map((line) => ` ${`* ${line}`.trim()}`) // " *" for empty lines, ` * ${line}` otherwise
-    .join('\n');
+    .join("\n");
   const docblock = `/**\n${docblockContentWithLeadingStars}\n */`;
   return docblock;
 }
@@ -63,6 +63,9 @@ export function createDocblock(docblockContent: string): string {
  * @param code Code from a source file.
  * @param docblockContent Plain docblock content (i.e. without "*"s at the start of each line)
  */
-export function prependFileDocblock(code: string, docblockContent: string): string {
+export function prependFileDocblock(
+  code: string,
+  docblockContent: string
+): string {
   return `${createDocblock(docblockContent)}\n\n${code.trimStart()}`;
 }
