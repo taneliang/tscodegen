@@ -1,6 +1,7 @@
 # tscodegen
 
-tscodegen is a minimal TypeScript port of [Facebook's Hack
+[tscodegen](https://www.npmjs.com/package/@elg/tscodegen) is a minimal
+TypeScript port of [Facebook's Hack
 Codegen](https://hhvm.github.io/hack-codegen). It provides a fluent API that
 allows you to build human-readable TypeScript source files from strings of
 code, with optional manually editable sections and tamper detection.
@@ -39,13 +40,13 @@ code, with optional manually editable sections and tamper detection.
 ## Installation
 
 ```sh
-npm install tscodegen prettier # NPM
-yarn add tscodegen prettier # Yarn
+npm install @elg/tscodegen prettier # NPM
+yarn add @elg/tscodegen prettier # Yarn
 ```
 
 ## Usage
 
-1. `import { CodeFile } from 'tscodegen';`
+1. `import { CodeFile } from '@elg/tscodegen';`
 1. Instantiate `CodeFile`.
 1. Call `build` to build the file with a `CodeBuilder` instance.
 1. Write the built file to disk with `saveToFile`.
