@@ -1,0 +1,27 @@
+{
+  "name": "tscodegen",
+  "version": "0.1.0",
+  "description": "TypeScript string-based code generation tool, with hashed files and manually editable sections",
+  "main": "dist/index.js",
+  "repository": "git@github.com:taneliang/tscodegen.git",
+  "author": "E-Liang Tan <eliang@eliangtan.com>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=12.4.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "prettier": "^2.0.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.2.3",
+    "@types/mock-fs": "^4.10.0",
+    "jest": "^26.0.1",
+    "mock-fs": "^4.12.0",
+    "ts-jest": "^26.0.0",
+    "typescript": "^3.9.3"
+  }
+}
