@@ -16,11 +16,10 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --coverage",
     "lint": "yarn lint:code && yarn lint:misc",
-    "lint:code": "eslint .",
-    "lint:code:fix": "eslint . --fix",
-    "lint:misc:base": "prettier './*.{js,json,md}'",
-    "lint:misc": "yarn lint:misc:base --check",
-    "lint:misc:fix": "yarn lint:misc:base --write",
+    "lint:code": "eslint src ./*.js",
+    "lint:code:fix": "yarn lint:code --fix",
+    "lint:misc": "prettier --check './*.{js,json,md}'",
+    "lint:misc:fix": "yarn lint:misc --write",
     "prepare": "yarn clean && yarn build"
   },
   "peerDependencies": {
