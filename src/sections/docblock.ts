@@ -57,8 +57,8 @@ export function createDocblock(docblockContent: string): string {
 }
 
 /**
- * Prepends `code` with `dockblockContent`. Assumes `code` does not already
- * have a file docblock.
+ * Prepends `code` with `docblockContent`. Assumes `code` does not already have
+ * a file docblock.
  *
  * @param code Code from a source file.
  * @param docblockContent Plain docblock content (i.e. without "*"s at the start of each line)
