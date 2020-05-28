@@ -10,12 +10,12 @@ const docblockMatchRegExp = /^\/\*\*\n(?<contents>( \*.*\n)*?) \*\/\n/;
  * @returns Docblock if it exists, else returns undefined.
  */
 export function getFileDocblock(code: string): string | undefined {
-  const rawDocblockMatch = code.match(docblockMatchRegExp);
-  if (!rawDocblockMatch) {
+  const rawDocblockMatchGroups = docblockMatchRegExp.exec(code)?.groups;
+  if (!rawDocblockMatchGroups) {
     return undefined;
   }
 
-  const rawContents = rawDocblockMatch.groups!.contents;
+  const rawContents = rawDocblockMatchGroups.contents;
   return (
     rawContents
       // Remove each line's leading " *"
@@ -36,7 +36,7 @@ export function getFileDocblock(code: string): string | undefined {
  * @param code Code from a source file.
  */
 export function removeFileDocblock(code: string): string {
-  if (!code.match(docblockMatchRegExp)) {
+  if (!docblockMatchRegExp.exec(code)) {
     return code;
   }
   return code.replace(docblockMatchRegExp, "");

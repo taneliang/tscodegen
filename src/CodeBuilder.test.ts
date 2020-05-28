@@ -54,7 +54,7 @@ in the block.
       const builder = new CodeBuilder({});
       builder.addBlock(codeBeforeBlock, mockBuilder);
 
-      expect(mockBuilder).toBeCalledTimes(1);
+      expect(mockBuilder).toHaveBeenCalledTimes(1);
 
       // Expect block to be built correctly, i.e. with content of block builder,
       // with the provided section name and valid demarcations.
@@ -109,7 +109,7 @@ in the block.
           "ANOTHER EXISTING MANUAL SECTION; SHOULD NOT APPEAR",
       });
       builder.addManualSection("mansec", mockSectionBuilder);
-      expect(mockSectionBuilder).toBeCalledTimes(1);
+      expect(mockSectionBuilder).toHaveBeenCalledTimes(1);
 
       // Expect manual section to be built correctly, i.e. with content of
       // section builder, with the provided section name and valid demarcations.
@@ -126,7 +126,7 @@ in the block.
       });
       builder.addManualSection("mansec", mockSectionBuilder);
       expect(builder.toString()).toMatchSnapshot();
-      expect(mockSectionBuilder).not.toBeCalled();
+      expect(mockSectionBuilder).not.toHaveBeenCalled();
     });
   });
 

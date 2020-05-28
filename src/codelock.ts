@@ -31,22 +31,22 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
   // Expect codelock info to be on the last line.
   const lockline = docblockLines[docblockLines.length - 1];
 
-  const editableMatch = lockline.match(
-    /^@generated-editable Codelock<<(?<hash>\S+?)>>$/
-  );
-  if (editableMatch) {
+  const editableMatchGroups = /^@generated-editable Codelock<<(?<hash>\S+?)>>$/.exec(
+    lockline
+  )?.groups;
+  if (editableMatchGroups) {
     return {
-      hash: editableMatch.groups!.hash,
+      hash: editableMatchGroups.hash,
       manualSectionsAllowed: true,
     };
   }
 
-  const uneditableMatch = lockline.match(
-    /^@generated Codelock<<(?<hash>\S+?)>>$/
-  );
-  if (uneditableMatch) {
+  const uneditableMatchGroups = /^@generated Codelock<<(?<hash>\S+?)>>$/.exec(
+    lockline
+  )?.groups;
+  if (uneditableMatchGroups) {
     return {
-      hash: uneditableMatch.groups!.hash,
+      hash: uneditableMatchGroups.hash,
       manualSectionsAllowed: false,
     };
   }

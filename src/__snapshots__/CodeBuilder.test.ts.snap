@@ -40,8 +40,8 @@ console.log(\\"Existing manual section\\");
 `;
 
 exports[`CodeBuilder should work 1`] = `
-"import path from 'path';
-import fs from 'fs';
+"import path from \\"path\\";
+import fs from \\"fs\\";
 
 /* BEGIN MANUAL SECTION custom_imports */
 /* END MANUAL SECTION */

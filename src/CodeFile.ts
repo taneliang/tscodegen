@@ -56,7 +56,7 @@ export class CodeFile {
    * @param force If true, will write to disk even if there are no pending
    * changes.
    */
-  saveToFile(force: boolean = false) {
+  saveToFile(force = false): void {
     if (force || this.#hasPendingChanges) {
       fs.writeFileSync(this.#sourceFilePath, this.#fileContents, "utf-8");
       this.#hasPendingChanges = false;

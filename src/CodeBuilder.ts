@@ -24,7 +24,7 @@ export class CodeBuilder {
   /**
    * Appends `code` and a newline. Call without arguments to insert a newline.
    */
-  addLine(code: string = ""): this {
+  addLine(code = ""): this {
     this.#gennedCode += code + "\n";
     return this;
   }

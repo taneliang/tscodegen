@@ -5,6 +5,8 @@ import {
   createDocblock,
 } from "./docblock";
 
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectRemoveFileDocblockToPassthrough"] }] */
+
 describe(getFileDocblock, () => {
   test("should return undefined if code does not contain docblock", () => {
     expect(getFileDocblock("")).toBeUndefined();

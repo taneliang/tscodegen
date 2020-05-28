@@ -10,9 +10,14 @@
     "node": ">=12.4.0"
   },
   "scripts": {
-    "test": "jest",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write 'src/**/*.ts' './*.{js,json,md}'"
+    "test": "jest",
+    "lint": "yarn lint:code && yarn lint:misc",
+    "lint:code": "eslint .",
+    "lint:code:fix": "eslint . --fix",
+    "lint:misc:base": "prettier './*.{js,json,md}'",
+    "lint:misc": "yarn lint:misc:base --check",
+    "lint:misc:fix": "yarn lint:misc:base --write"
   },
   "dependencies": {
     "prettier": "^2.0.5"
@@ -20,6 +25,12 @@
   "devDependencies": {
     "@types/jest": "^25.2.3",
     "@types/mock-fs": "^4.10.0",
+    "@typescript-eslint/eslint-plugin": "^3.0.2",
+    "@typescript-eslint/parser": "^3.0.2",
+    "eslint": "^7.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-jest": "^23.13.2",
+    "eslint-plugin-prettier": "^3.1.3",
     "jest": "^26.0.1",
     "mock-fs": "^4.12.0",
     "ts-jest": "^26.0.0",

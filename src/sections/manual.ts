@@ -23,8 +23,11 @@ export function createManualSection(
 export function extractManualSections(code: string): ManualSectionMap {
   const allMatches = code.matchAll(sectionMatchRegExp);
   const manualSections: ManualSectionMap = {};
-  Array.from(allMatches).forEach((match: RegExpMatchArray) => {
-    manualSections[match.groups!.key] = match.groups!.code.trim();
+  [...allMatches].forEach((match: RegExpMatchArray) => {
+    if (!match.groups) {
+      return;
+    }
+    manualSections[match.groups.key] = match.groups.code.trim();
   });
   return manualSections;
 }
@@ -35,7 +38,7 @@ export function extractManualSections(code: string): ManualSectionMap {
  * @param code Source code, potentially containing manual sections.
  */
 export function emptyManualSections(code: string): string {
-  return code.replace(sectionMatchRegExp, (matchedString, key, code) =>
-    createManualSection(key, "")
+  return code.replace(sectionMatchRegExp, (matchedString, sectionKey) =>
+    createManualSection(sectionKey, "")
   );
 }
