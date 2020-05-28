@@ -20,7 +20,8 @@
     "lint:code:fix": "eslint . --fix",
     "lint:misc:base": "prettier './*.{js,json,md}'",
     "lint:misc": "yarn lint:misc:base --check",
-    "lint:misc:fix": "yarn lint:misc:base --write"
+    "lint:misc:fix": "yarn lint:misc:base --write",
+    "prepare": "yarn clean && yarn build"
   },
   "peerDependencies": {
     "prettier": "2.x"
