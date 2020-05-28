@@ -1,6 +1,6 @@
 {
   "name": "@elg/tscodegen",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript string-based code generation tool, with hashed files and manually editable sections",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
