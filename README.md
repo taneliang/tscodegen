@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/taneliang/tscodegen.svg?style=svg)](https://circleci.com/gh/taneliang/tscodegen)
 [![codecov](https://codecov.io/gh/taneliang/tscodegen/branch/master/graph/badge.svg)](https://codecov.io/gh/taneliang/tscodegen)
-[![Maintainability](https://api.codeclimate.com/v1/badges/a17d9aa41c5fe1ee3dfb/maintainability)](https://codeclimate.com/github/taneliang/tscodegen/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/bbc025c3c4e1ce23b002/maintainability)](https://codeclimate.com/github/taneliang/tscodegen/maintainability)
 
 [tscodegen](https://www.npmjs.com/package/@elg/tscodegen) is a minimal
 TypeScript port of [Facebook's Hack
