@@ -1,6 +1,6 @@
 import fs from "fs";
 import { CodeBuilder } from "./CodeBuilder";
-import { verifyLock, lockCode } from "./codelock";
+import { verifyLock, lockCode, getCodelockInfo } from "./codelock";
 import { extractManualSections } from "./sections/manual";
 
 /**
@@ -10,12 +10,16 @@ export class CodeFile {
   readonly #sourceFilePath: string;
   #originalFileContents = "";
   #fileContents = "";
+  #manualSectionsAllowed: boolean | undefined;
 
   constructor(sourceFilePath: string) {
     this.#sourceFilePath = sourceFilePath;
     if (fs.existsSync(sourceFilePath)) {
       this.#originalFileContents = fs.readFileSync(sourceFilePath, "utf-8");
       this.#fileContents = this.#originalFileContents;
+      this.#manualSectionsAllowed = getCodelockInfo(
+        this.#fileContents
+      )?.manualSectionsAllowed;
     }
   }
 
@@ -36,8 +40,23 @@ export class CodeFile {
     const builder = builderBuilder(
       new CodeBuilder(extractManualSections(this.#fileContents))
     );
-    const builtCode = builder.toString();
-    this.#fileContents = lockCode(builtCode, builder.hasManualSections());
+    this.#fileContents = builder.toString();
+    this.#manualSectionsAllowed = builder.hasManualSections();
+    return this;
+  }
+
+  /**
+   * Prepend a codelock docblock to the file.
+   *
+   * Recommended to be called after `build`.
+   *
+   * NOTE: This will prepend a docblock even if the file already has one.
+   */
+  lock(): this {
+    this.#fileContents = lockCode(
+      this.#fileContents,
+      this.#manualSectionsAllowed ?? false
+    );
     return this;
   }
 
