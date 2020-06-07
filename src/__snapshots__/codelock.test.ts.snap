@@ -1,5 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`lockCode editable files should interpolate provided content 1`] = `
+"/**
+ * This file is generated with manually editable sections. Only make
+ * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+ * designators.
+ * CUSTOM LINE 1
+ * CUSTOM LINE 2
+ * @generated-editable Codelock<<VZ4MZwQh3kgACluPomV+XBbiKqmafUfq>>
+ */
+
+interface CodelockInfo {
+  hash: string;
+  manualSectionsAllowed: boolean;
+  /* BEGIN MANUAL SECTION custom_fields */
+  /* END MANUAL SECTION */
+}"
+`;
+
 exports[`lockCode editable files should prepend file docblock with consistent hash 1`] = `
 "/**
  * This file is generated with manually editable sections. Only make
@@ -7,6 +25,22 @@ exports[`lockCode editable files should prepend file docblock with consistent ha
  * designators.
  *
  * @generated-editable Codelock<<VZ4MZwQh3kgACluPomV+XBbiKqmafUfq>>
+ */
+
+interface CodelockInfo {
+  hash: string;
+  manualSectionsAllowed: boolean;
+  /* BEGIN MANUAL SECTION custom_fields */
+  /* END MANUAL SECTION */
+}"
+`;
+
+exports[`lockCode uneditable files should interpolate provided content 1`] = `
+"/**
+ * This file is generated. Do not modify it manually.
+ * CUSTOM LINE 1
+ * CUSTOM LINE 2
+ * @generated Codelock<<SZOHkis46G+poAie7wLZwJjvgG/PEyVm>>
  */
 
 interface CodelockInfo {

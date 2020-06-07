@@ -80,9 +80,14 @@ function computeHash(code: string, shouldEmptyManualSections: boolean): string {
  *
  * @param code Code to be locked.
  * @param manualSectionsAllowed Whether generated code can contain manual sections.
+ * @param customContent A custom comment to insert into the docblock.
  * @returns Locked code, i.e. code with prepended codelock file docblock.
  */
-export function lockCode(code: string, manualSectionsAllowed: boolean): string {
+export function lockCode(
+  code: string,
+  manualSectionsAllowed: boolean,
+  customContent = ""
+): string {
   const hash = computeHash(code, manualSectionsAllowed);
 
   let docblockContent;
@@ -91,11 +96,11 @@ export function lockCode(code: string, manualSectionsAllowed: boolean): string {
     docblockContent = `This file is generated with manually editable sections. Only make
 modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
 designators.
-
+${customContent}
 @generated-editable Codelock<<${hash}>>`;
   } else {
     docblockContent = `This file is generated. Do not modify it manually.
-
+${customContent}
 @generated Codelock<<${hash}>>`;
   }
 
