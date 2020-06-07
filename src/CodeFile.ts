@@ -51,11 +51,14 @@ export class CodeFile {
    * Recommended to be called after `build`.
    *
    * NOTE: This will prepend a docblock even if the file already has one.
+   *
+   * @param customComment Comment to be interpolated into the lock docblock.
    */
-  lock(): this {
+  lock(customComment = ""): this {
     this.#fileContents = lockCode(
       this.#fileContents,
-      this.#manualSectionsAllowed ?? false
+      this.#manualSectionsAllowed ?? false,
+      customComment
     );
     return this;
   }

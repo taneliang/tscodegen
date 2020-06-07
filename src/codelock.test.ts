@@ -99,12 +99,40 @@ describe(lockCode, () => {
       expect(lockedCode).toContain("@generated-editable Codelock<<");
       expect(lockedCode).toMatchSnapshot();
     });
+
+    test("should interpolate provided content", () => {
+      const customLine1 = "CUSTOM LINE 1";
+      const customLine2 = "CUSTOM LINE 2";
+      const lockedCode = lockCode(
+        codeWithoutDocblock,
+        true,
+        `${customLine1}\n${customLine2}`
+      );
+      expect(lockedCode).toContain("@generated-editable Codelock<<");
+      expect(lockedCode).toContain(customLine1);
+      expect(lockedCode).toContain(customLine2);
+      expect(lockedCode).toMatchSnapshot();
+    });
   });
 
   describe("uneditable files", () => {
     test("should prepend file docblock with consistent hash", () => {
       const lockedCode = lockCode(codeWithoutDocblock, false);
       expect(lockedCode).toContain("@generated Codelock<<");
+      expect(lockedCode).toMatchSnapshot();
+    });
+
+    test("should interpolate provided content", () => {
+      const customLine1 = "CUSTOM LINE 1";
+      const customLine2 = "CUSTOM LINE 2";
+      const lockedCode = lockCode(
+        codeWithoutDocblock,
+        false,
+        `${customLine1}\n${customLine2}`
+      );
+      expect(lockedCode).toContain("@generated Codelock<<");
+      expect(lockedCode).toContain(customLine1);
+      expect(lockedCode).toContain(customLine2);
       expect(lockedCode).toMatchSnapshot();
     });
   });

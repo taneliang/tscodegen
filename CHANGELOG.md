@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `CodeFile.lock`, a new manual lock step that allows you to customize the
+  lock docstring.
+
 ### Changed
 
 - **BREAKNG:** `CodeFile.build` no longer locks the file automatically. Call

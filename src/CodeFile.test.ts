@@ -86,6 +86,22 @@ describe(CodeFile, () => {
       // Expect codelock to be present
       expect(builtFile.toString()).toContain("@generated-editable");
     });
+
+    test("should add lock with custom comment", () => {
+      const customCommentLine1 = "Regenerate this file by running:";
+      const customCommentLine2 =
+        "`npx gentgen generate src/gents/User/UserSchema.ts`";
+
+      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const builtFile = new CodeFile(CODE_PATH)
+        .build(mockBuilderBuilder)
+        .lock(`\n${customCommentLine1}\n${customCommentLine2}\n`);
+
+      const builtString = builtFile.toString();
+      expect(builtString).toContain("@generated-editable");
+      expect(builtString).toContain(customCommentLine1);
+      expect(builtString).toContain(customCommentLine2);
+    });
   });
 
   describe(CodeFile.prototype.saveToFile, () => {
