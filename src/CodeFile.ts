@@ -8,13 +8,14 @@ import { extractManualSections } from "./sections/manual";
  */
 export class CodeFile {
   readonly #sourceFilePath: string;
+  #originalFileContents = "";
   #fileContents = "";
-  #hasPendingChanges = false;
 
   constructor(sourceFilePath: string) {
     this.#sourceFilePath = sourceFilePath;
     if (fs.existsSync(sourceFilePath)) {
-      this.#fileContents = fs.readFileSync(sourceFilePath, "utf-8");
+      this.#originalFileContents = fs.readFileSync(sourceFilePath, "utf-8");
+      this.#fileContents = this.#originalFileContents;
     }
   }
 
@@ -36,9 +37,7 @@ export class CodeFile {
       new CodeBuilder(extractManualSections(this.#fileContents))
     );
     const builtCode = builder.toString();
-    const oldFileContents = this.#fileContents;
     this.#fileContents = lockCode(builtCode, builder.hasManualSections());
-    this.#hasPendingChanges = oldFileContents !== this.#fileContents;
     return this;
   }
 
@@ -57,9 +56,9 @@ export class CodeFile {
    * changes.
    */
   saveToFile(force = false): void {
-    if (force || this.#hasPendingChanges) {
+    if (force || this.#originalFileContents !== this.#fileContents) {
       fs.writeFileSync(this.#sourceFilePath, this.#fileContents, "utf-8");
-      this.#hasPendingChanges = false;
+      this.#originalFileContents = this.#fileContents;
     }
   }
 }
