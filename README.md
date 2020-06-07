@@ -82,6 +82,7 @@ new CodeFile("./file.ts")
       )
       .format()
   )
+  .lock()
   .saveToFile();
 ```
 
