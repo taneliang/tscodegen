@@ -1,6 +1,6 @@
 import fs from "fs";
 import { CodeBuilder } from "./CodeBuilder";
-import { verifyLock, lockCode } from "./codelock";
+import { verifyLock, lockCode, getCodelockInfo } from "./codelock";
 import { extractManualSections } from "./sections/manual";
 
 /**
@@ -8,13 +8,18 @@ import { extractManualSections } from "./sections/manual";
  */
 export class CodeFile {
   readonly #sourceFilePath: string;
+  #originalFileContents = "";
   #fileContents = "";
-  #hasPendingChanges = false;
+  #manualSectionsAllowed: boolean | undefined;
 
   constructor(sourceFilePath: string) {
     this.#sourceFilePath = sourceFilePath;
     if (fs.existsSync(sourceFilePath)) {
-      this.#fileContents = fs.readFileSync(sourceFilePath, "utf-8");
+      this.#originalFileContents = fs.readFileSync(sourceFilePath, "utf-8");
+      this.#fileContents = this.#originalFileContents;
+      this.#manualSectionsAllowed = getCodelockInfo(
+        this.#fileContents
+      )?.manualSectionsAllowed;
     }
   }
 
@@ -35,10 +40,23 @@ export class CodeFile {
     const builder = builderBuilder(
       new CodeBuilder(extractManualSections(this.#fileContents))
     );
-    const builtCode = builder.toString();
-    const oldFileContents = this.#fileContents;
-    this.#fileContents = lockCode(builtCode, builder.hasManualSections());
-    this.#hasPendingChanges = oldFileContents !== this.#fileContents;
+    this.#fileContents = builder.toString();
+    this.#manualSectionsAllowed = builder.hasManualSections();
+    return this;
+  }
+
+  /**
+   * Prepend a codelock docblock to the file.
+   *
+   * Recommended to be called after `build`.
+   *
+   * NOTE: This will prepend a docblock even if the file already has one.
+   */
+  lock(): this {
+    this.#fileContents = lockCode(
+      this.#fileContents,
+      this.#manualSectionsAllowed ?? false
+    );
     return this;
   }
 
@@ -57,9 +75,9 @@ export class CodeFile {
    * changes.
    */
   saveToFile(force = false): void {
-    if (force || this.#hasPendingChanges) {
+    if (force || this.#originalFileContents !== this.#fileContents) {
       fs.writeFileSync(this.#sourceFilePath, this.#fileContents, "utf-8");
-      this.#hasPendingChanges = false;
+      this.#originalFileContents = this.#fileContents;
     }
   }
 }

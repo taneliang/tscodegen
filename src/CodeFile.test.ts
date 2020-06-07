@@ -57,9 +57,11 @@ describe(CodeFile, () => {
       expect(new CodeFile(CODE_PATH).verify()).toBe(false);
     });
 
-    test("should return true for newly built file", () => {
+    test("should return true for newly built and locked file", () => {
       const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
-      const builtFile = new CodeFile(CODE_PATH).build(mockBuilderBuilder);
+      const builtFile = new CodeFile(CODE_PATH)
+        .build(mockBuilderBuilder)
+        .lock();
       expect(builtFile.verify()).toBe(true);
     });
   });
@@ -70,10 +72,19 @@ describe(CodeFile, () => {
       const builtFile = new CodeFile(CODE_PATH).build(mockBuilderBuilder);
       // Expect new CodeBuilder to have been used
       expect(CodeBuilder.prototype.constructor).toHaveBeenCalledTimes(1);
-      // Expect codelock to be present
-      expect(builtFile.toString()).toContain("@generated-editable");
       // Expect built code to be present
       expect(builtFile.toString()).toContain("BUILT CODE");
+    });
+  });
+
+  describe(CodeFile.prototype.lock, () => {
+    test("should add lock to code", () => {
+      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const builtFile = new CodeFile(CODE_PATH)
+        .build(mockBuilderBuilder)
+        .lock();
+      // Expect codelock to be present
+      expect(builtFile.toString()).toContain("@generated-editable");
     });
   });
 
@@ -92,8 +103,7 @@ describe(CodeFile, () => {
       expect(writeFileSyncSpy).not.toHaveBeenCalled();
 
       // Expect correct write to disk
-      file.build(mockBuilderBuilder);
-      file.saveToFile();
+      file.build(mockBuilderBuilder).lock().saveToFile();
       expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
       expect(fs.readFileSync(CODE_PATH, "utf-8")).toBe(file.toString());
 
