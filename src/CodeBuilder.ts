@@ -87,11 +87,17 @@ export class CodeBuilder {
 
   /**
    * Formats the stored code with Prettier.
+   *
+   * @param prettierOptions Optional Prettier configuration object. If provided,
+   *   this will be used directly and no config will be resolved from disk.
    */
-  format(): this {
-    const prettierOptions = syncPrettier.resolveConfig(process.cwd());
+  format(prettierOptions?: import("prettier").Options): this {
+    let options = prettierOptions;
+    if (!options) {
+      options = syncPrettier.resolveConfig(process.cwd()) ?? {};
+    }
     this.#gennedCode = syncPrettier.format(this.#gennedCode, {
-      ...(prettierOptions ?? {}),
+      ...options,
       parser: "typescript",
     });
     return this;

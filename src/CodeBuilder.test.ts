@@ -130,6 +130,17 @@ in the block.
     });
   });
 
+  describe(CodeBuilder.prototype.format, () => {
+    test("should use provided prettier options", () => {
+      expect(
+        new CodeBuilder({})
+          .addLine('const hello = "world"')
+          .format({ singleQuote: true, semi: false })
+          .toString(),
+      ).toBe("const hello = 'world'\n");
+    });
+  });
+
   test("should work", () => {
     expect(
       new CodeBuilder({
