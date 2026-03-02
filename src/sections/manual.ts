@@ -1,15 +1,16 @@
 import type { ManualSectionMap } from "../types/ManualSectionMap";
 
-const sectionMatchRegExp = /\/\* BEGIN MANUAL SECTION (?<key>\S+) \*\/(?<code>(.|\n)+?|)\/\* END MANUAL SECTION \*\//gm;
+const sectionMatchRegExp =
+  /\/\* BEGIN MANUAL SECTION (?<key>\S+) \*\/(?<code>(.|\n)+?|)\/\* END MANUAL SECTION \*\//gm;
 
 export function createManualSection(
   sectionKey: string,
-  sectionCode: string
+  sectionCode: string,
 ): string {
   // Ensure section key is non-empty and contains no whitespaces
   if (sectionKey.length === 0 || /\s/.test(sectionKey)) {
     throw new Error(
-      `Manual section keys should not be empty or contain whitespaces. Received "${sectionKey}".`
+      `Manual section keys should not be empty or contain whitespaces. Received "${sectionKey}".`,
     );
   }
 
@@ -39,6 +40,6 @@ export function extractManualSections(code: string): ManualSectionMap {
  */
 export function emptyManualSections(code: string): string {
   return code.replace(sectionMatchRegExp, (matchedString, sectionKey) =>
-    createManualSection(sectionKey, "")
+    createManualSection(sectionKey, ""),
   );
 }

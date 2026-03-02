@@ -31,9 +31,8 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
   // Expect codelock info to be on the last line.
   const lockline = docblockLines[docblockLines.length - 1];
 
-  const editableMatchGroups = /^@generated-editable Codelock<<(?<hash>\S+?)>>$/.exec(
-    lockline
-  )?.groups;
+  const editableMatchGroups =
+    /^@generated-editable Codelock<<(?<hash>\S+?)>>$/.exec(lockline)?.groups;
   if (editableMatchGroups) {
     return {
       hash: editableMatchGroups.hash,
@@ -42,7 +41,7 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
   }
 
   const uneditableMatchGroups = /^@generated Codelock<<(?<hash>\S+?)>>$/.exec(
-    lockline
+    lockline,
   )?.groups;
   if (uneditableMatchGroups) {
     return {
@@ -63,9 +62,8 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
  * @returns Lock hash for `code`.
  */
 function computeHash(code: string, shouldEmptyManualSections: boolean): string {
-  const hashableCode = (shouldEmptyManualSections
-    ? emptyManualSections(code)
-    : code
+  const hashableCode = (
+    shouldEmptyManualSections ? emptyManualSections(code) : code
   ).trim();
   return crypto
     .createHash("shake128", { outputLength: 24 })
@@ -86,7 +84,7 @@ function computeHash(code: string, shouldEmptyManualSections: boolean): string {
 export function lockCode(
   code: string,
   manualSectionsAllowed: boolean,
-  customContent = ""
+  customContent = "",
 ): string {
   const hash = computeHash(code, manualSectionsAllowed);
 
@@ -122,7 +120,7 @@ export function verifyLock(lockedCode: string): boolean {
     codeblockInfo.hash ===
     computeHash(
       removeFileDocblock(lockedCode),
-      codeblockInfo.manualSectionsAllowed
+      codeblockInfo.manualSectionsAllowed,
     )
   );
 }

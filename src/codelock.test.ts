@@ -106,7 +106,7 @@ describe(lockCode, () => {
       const lockedCode = lockCode(
         codeWithoutDocblock,
         true,
-        `${customLine1}\n${customLine2}`
+        `${customLine1}\n${customLine2}`,
       );
       expect(lockedCode).toContain("@generated-editable Codelock<<");
       expect(lockedCode).toContain(customLine1);
@@ -128,7 +128,7 @@ describe(lockCode, () => {
       const lockedCode = lockCode(
         codeWithoutDocblock,
         false,
-        `${customLine1}\n${customLine2}`
+        `${customLine1}\n${customLine2}`,
       );
       expect(lockedCode).toContain("@generated Codelock<<");
       expect(lockedCode).toContain(customLine1);
@@ -151,18 +151,18 @@ describe(verifyLock, () => {
 
   test("should return false if file has been modified outside manual sections after locking", () => {
     expect(verifyLock(lockCode(codeWithoutDocblock, true) + "\naaaaaa")).toBe(
-      false
+      false,
     );
     expect(verifyLock(lockCode(codeWithoutDocblock, false) + "\naaaaaa")).toBe(
-      false
+      false,
     );
     expect(
       verifyLock(
         lockCode(codeWithoutDocblock, true).replace(
           "MANUAL SECTION custom_fields",
-          "MANUAL SECTION a_bit_too_custom"
-        )
-      )
+          "MANUAL SECTION a_bit_too_custom",
+        ),
+      ),
     ).toBe(false);
   });
 
@@ -172,9 +172,9 @@ describe(verifyLock, () => {
         verifyLock(
           lockCode(codeWithoutDocblock, true).replace(
             "/* BEGIN MANUAL SECTION custom_fields */\n",
-            "/* BEGIN MANUAL SECTION custom_fields */\nconsole.log('Custom code');\n"
-          )
-        )
+            "/* BEGIN MANUAL SECTION custom_fields */\nconsole.log('Custom code');\n",
+          ),
+        ),
       ).toBe(true);
     });
   });
@@ -185,9 +185,9 @@ describe(verifyLock, () => {
         verifyLock(
           lockCode(codeWithoutDocblock, false).replace(
             "/* BEGIN MANUAL SECTION custom_fields */\n",
-            "/* BEGIN MANUAL SECTION custom_fields */\nconsole.log('Custom code in uneditable file');\n"
-          )
-        )
+            "/* BEGIN MANUAL SECTION custom_fields */\nconsole.log('Custom code in uneditable file');\n",
+          ),
+        ),
       ).toBe(false);
     });
   });
@@ -201,7 +201,7 @@ describe("reversibility", () => {
     expect(getCodelockInfo(lockCode(codeWithoutDocblock, false))).toMatchObject(
       {
         manualSectionsAllowed: false,
-      }
+      },
     );
   });
 });

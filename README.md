@@ -71,16 +71,16 @@ new CodeFile("./file.ts")
       .addBlock("class Steam extends Water", (builder) =>
         builder
           .addBlock("constructor()", (builder) =>
-            builder.addLine("this.boil();")
+            builder.addLine("this.boil();"),
           )
           .addLine()
           .addBlock("boil()", (b) =>
             b.addManualSection("boil_body", (builder) =>
-              builder.add("this.temp = 100;")
-            )
-          )
+              builder.add("this.temp = 100;"),
+            ),
+          ),
       )
-      .format()
+      .format(),
   )
   .lock()
   .saveToFile();

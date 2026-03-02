@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import syncPrettier from "@prettier/sync";
 import { createManualSection } from "./sections/manual";
 import type { ManualSectionMap } from "./types/ManualSectionMap";
 import { createDocblock } from "./sections/docblock";
@@ -48,10 +48,10 @@ export class CodeBuilder {
    */
   addBlock(
     codeBeforeBlock: string,
-    blockBuilder: (blockBuilder: CodeBuilder) => CodeBuilder
+    blockBuilder: (blockBuilder: CodeBuilder) => CodeBuilder,
   ): this {
     const builtBlockBuilder = blockBuilder(
-      new CodeBuilder(this.#existingManualSections)
+      new CodeBuilder(this.#existingManualSections),
     );
     this.#hasManualSections =
       this.#hasManualSections || builtBlockBuilder.hasManualSections();
@@ -71,14 +71,14 @@ export class CodeBuilder {
    */
   addManualSection(
     sectionKey: string,
-    sectionBuilder: (manualSectionBuilder: CodeBuilder) => CodeBuilder
+    sectionBuilder: (manualSectionBuilder: CodeBuilder) => CodeBuilder,
   ): this {
     let sectionContent: string;
     if (this.#existingManualSections[sectionKey]) {
       sectionContent = this.#existingManualSections[sectionKey];
     } else {
       sectionContent = sectionBuilder(
-        new CodeBuilder(this.#existingManualSections)
+        new CodeBuilder(this.#existingManualSections),
       ).toString();
     }
     this.#hasManualSections = true;
@@ -89,8 +89,8 @@ export class CodeBuilder {
    * Formats the stored code with Prettier.
    */
   format(): this {
-    const prettierOptions = prettier.resolveConfig.sync(process.cwd());
-    this.#gennedCode = prettier.format(this.#gennedCode, {
+    const prettierOptions = syncPrettier.resolveConfig(process.cwd());
+    this.#gennedCode = syncPrettier.format(this.#gennedCode, {
       ...(prettierOptions ?? {}),
       parser: "typescript",
     });

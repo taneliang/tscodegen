@@ -18,7 +18,7 @@ export class CodeFile {
       this.#originalFileContents = fs.readFileSync(sourceFilePath, "utf-8");
       this.#fileContents = this.#originalFileContents;
       this.#manualSectionsAllowed = getCodelockInfo(
-        this.#fileContents
+        this.#fileContents,
       )?.manualSectionsAllowed;
     }
   }
@@ -38,7 +38,7 @@ export class CodeFile {
    */
   build(builderBuilder: (builder: CodeBuilder) => CodeBuilder): this {
     const builder = builderBuilder(
-      new CodeBuilder(extractManualSections(this.#fileContents))
+      new CodeBuilder(extractManualSections(this.#fileContents)),
     );
     this.#fileContents = builder.toString();
     this.#manualSectionsAllowed = builder.hasManualSections();
@@ -58,7 +58,7 @@ export class CodeFile {
     this.#fileContents = lockCode(
       this.#fileContents,
       this.#manualSectionsAllowed ?? false,
-      customComment
+      customComment,
     );
     return this;
   }

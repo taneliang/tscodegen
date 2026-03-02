@@ -65,7 +65,7 @@ export function createDocblock(docblockContent: string): string {
  */
 export function prependFileDocblock(
   code: string,
-  docblockContent: string
+  docblockContent: string,
 ): string {
   return `${createDocblock(docblockContent)}\n\n${code.trimStart()}`;
 }
