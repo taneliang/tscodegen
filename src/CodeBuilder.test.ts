@@ -5,7 +5,7 @@ describe(CodeBuilder, () => {
     test("should add code verbatim", () => {
       const code = 'const hello = "world";';
       expect(new CodeBuilder({}).add(code).add(code).toString()).toBe(
-        code + code
+        code + code,
       );
     });
   });
@@ -14,7 +14,7 @@ describe(CodeBuilder, () => {
     test("should add code with appended newline", () => {
       const code = 'const hello = "world";';
       expect(new CodeBuilder({}).addLine(code).addLine(code).toString()).toBe(
-        `${code}\n${code}\n`
+        `${code}\n${code}\n`,
       );
     });
   });
@@ -24,7 +24,7 @@ describe(CodeBuilder, () => {
       const docblock =
         "Only the wisest, non-binary hominids can see the code below.";
       expect(
-        new CodeBuilder({}).addDocblock(docblock).toString()
+        new CodeBuilder({}).addDocblock(docblock).toString(),
       ).toMatchSnapshot();
     });
 
@@ -37,7 +37,7 @@ Add a block of code, i.e. code with braces around them.
 in the block.
       `.trim();
       expect(
-        new CodeBuilder({}).addDocblock(docblock).toString()
+        new CodeBuilder({}).addDocblock(docblock).toString(),
       ).toMatchSnapshot();
     });
   });
@@ -146,12 +146,12 @@ in the block.
             .addLine()
             .addBlock("boil()", (b) =>
               b.addManualSection("boil_body", (builder) =>
-                builder.add("this.temp = 100;")
-              )
-            )
+                builder.add("this.temp = 100;"),
+              ),
+            ),
         )
         .format()
-        .toString()
+        .toString(),
     ).toMatchSnapshot();
   });
 });

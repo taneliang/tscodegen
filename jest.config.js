@@ -19,6 +19,6 @@ module.exports = {
   reporters: ["default"].concat(
     process.env.CI
       ? [["jest-junit", { outputDirectory: "./test-reports/junit" }]]
-      : []
+      : [],
   ),
 };

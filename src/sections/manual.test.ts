@@ -48,8 +48,8 @@ moreMagic();
         `
           magic();
           moreMagic();
-        `
-      )
+        `,
+      ),
     ).toBe(`/* BEGIN MANUAL SECTION key */
 magic();
           moreMagic();
@@ -67,33 +67,33 @@ describe(extractManualSections, () => {
             this.value = 1;
           }
         }
-      `)
+      `),
     ).toEqual({});
   });
 
   test("should ignore malformed manual sections", () => {
     expect(
       extractManualSections(
-        "/* BEGIN MANUAL SECTION *//* END MANUAL SECTION */"
-      )
+        "/* BEGIN MANUAL SECTION *//* END MANUAL SECTION */",
+      ),
     ).toEqual({});
     expect(
       extractManualSections(
-        "/* BEGIN MANUAL SECTION no_end_designator *//* END */"
-      )
+        "/* BEGIN MANUAL SECTION no_end_designator *//* END */",
+      ),
     ).toEqual({});
     expect(
       extractManualSections(
-        "/* BEGIN MANUAL SECTION key with whitespace *//* END MANUAL SECTION */"
-      )
+        "/* BEGIN MANUAL SECTION key with whitespace *//* END MANUAL SECTION */",
+      ),
     ).toEqual({});
   });
 
   test("should extract single line manual section", () => {
     expect(
       extractManualSections(
-        '/* BEGIN MANUAL SECTION key */console.log("code");/* END MANUAL SECTION */'
-      )
+        '/* BEGIN MANUAL SECTION key */console.log("code");/* END MANUAL SECTION */',
+      ),
     ).toEqual({
       key: 'console.log("code");',
     });
@@ -111,7 +111,7 @@ describe(extractManualSections, () => {
             /* END MANUAL SECTION */
           }
         }
-      `)
+      `),
     ).toEqual({
       key: `console.log("line one"); // Comment
             console.log("line two");`,
@@ -139,7 +139,7 @@ describe(extractManualSections, () => {
           
           /* END MANUAL SECTION */
         }
-      `)
+      `),
     ).toEqual({
       "custom-imports_empty_section": "",
       "One-constructor_with_code": `console.log("custom constructor");
@@ -169,13 +169,13 @@ describe(emptyManualSections, () => {
 
   test("should passthrough code that has malformed manual sections", () => {
     expectEmptyManualSectionsToPassthrough(
-      "/* BEGIN MANUAL SECTION *//* END MANUAL SECTION */"
+      "/* BEGIN MANUAL SECTION *//* END MANUAL SECTION */",
     );
     expectEmptyManualSectionsToPassthrough(
-      "/* BEGIN MANUAL SECTION no_end_designator *//* END */"
+      "/* BEGIN MANUAL SECTION no_end_designator *//* END */",
     );
     expectEmptyManualSectionsToPassthrough(
-      "/* BEGIN MANUAL SECTION key with whitespace *//* END MANUAL SECTION */"
+      "/* BEGIN MANUAL SECTION key with whitespace *//* END MANUAL SECTION */",
     );
   });
 
@@ -187,34 +187,34 @@ describe(emptyManualSections, () => {
   test("should reset an empty manual section", () => {
     expect(
       emptyManualSections(
-        "/* BEGIN MANUAL SECTION key *//* END MANUAL SECTION */"
-      )
+        "/* BEGIN MANUAL SECTION key *//* END MANUAL SECTION */",
+      ),
     ).toBe(expectedEmptySectionForSectionKey("key"));
     expect(
       emptyManualSections(
-        "/* BEGIN MANUAL SECTION key */\n/* END MANUAL SECTION */"
-      )
+        "/* BEGIN MANUAL SECTION key */\n/* END MANUAL SECTION */",
+      ),
     ).toBe(expectedEmptySectionForSectionKey("key"));
     expect(
       emptyManualSections(
-        "/* BEGIN MANUAL SECTION key */\n\n\n/* END MANUAL SECTION */"
-      )
+        "/* BEGIN MANUAL SECTION key */\n\n\n/* END MANUAL SECTION */",
+      ),
     ).toBe(expectedEmptySectionForSectionKey("key"));
   });
 
   test("should empty single line manual section", () => {
     expect(
       emptyManualSections(
-        '/* BEGIN MANUAL SECTION key */console.log("code");/* END MANUAL SECTION */'
-      )
+        '/* BEGIN MANUAL SECTION key */console.log("code");/* END MANUAL SECTION */',
+      ),
     ).toBe(expectedEmptySectionForSectionKey("key"));
   });
 
   test("should empty multiline manual section", () => {
     expect(
       emptyManualSections(
-        '/* BEGIN MANUAL SECTION key */\nconsole.log("one");\nconsole.log("two");/* END MANUAL SECTION */'
-      )
+        '/* BEGIN MANUAL SECTION key */\nconsole.log("one");\nconsole.log("two");/* END MANUAL SECTION */',
+      ),
     ).toBe(expectedEmptySectionForSectionKey("key"));
   });
 
@@ -239,7 +239,7 @@ describe(emptyManualSections, () => {
           
           /* END MANUAL SECTION */
         }
-      `)
+      `),
     ).toBe(`
         /* BEGIN MANUAL SECTION custom-imports_empty_section */
 /* END MANUAL SECTION */

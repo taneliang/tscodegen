@@ -16,8 +16,8 @@ describe(getFileDocblock, () => {
 function add(a, b) {
   return a + b;
 }
-        `.trim()
-      )
+        `.trim(),
+      ),
     ).toBeUndefined();
   });
 
@@ -27,7 +27,7 @@ function add(a, b) {
 /**
  * File docblock with a newline above it
  */
-      `)
+      `),
     ).toBeUndefined();
   });
 
@@ -38,8 +38,8 @@ function add(a, b) {
 /*
  * File "docblock" without the second star in the first line
  */
-        `.trim()
-      )
+        `.trim(),
+      ),
     ).toBeUndefined();
     expect(
       getFileDocblock(
@@ -47,8 +47,8 @@ function add(a, b) {
 /**
  File "docblock" without the leading star in a line
  */
-        `.trim()
-      )
+        `.trim(),
+      ),
     ).toBeUndefined();
   });
 
@@ -70,8 +70,8 @@ function add(a, b) {
 function add(a, b) {
   return a + b;
 }
-        `.trim()
-      )
+        `.trim(),
+      ),
     ).toBe(
       `
 File docblock
@@ -79,7 +79,7 @@ File docblock
 More info
 
 @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
-      `.trim()
+      `.trim(),
     );
   });
 });
@@ -96,7 +96,7 @@ describe(removeFileDocblock, () => {
 function add(a, b) {
   return a + b;
 }
-      `.trim()
+      `.trim(),
     );
   });
 
@@ -114,7 +114,7 @@ function add(a, b) {
 /*
  * File "docblock" without the second star in the first line
  */
-      `.trim()
+      `.trim(),
     );
 
     expectRemoveFileDocblockToPassthrough(
@@ -122,7 +122,7 @@ function add(a, b) {
 /**
  File "docblock" without the leading star in a line
  */
-      `.trim()
+      `.trim(),
     );
   });
 
@@ -144,8 +144,8 @@ function add(a, b) {
 function add(a, b) {
   return a + b;
 }
-        `.trim() + "\n" // Append newline to ensure we don't trim end
-      )
+        `.trim() + "\n", // Append newline to ensure we don't trim end
+      ),
     ).toBe(
       `
 /**
@@ -154,7 +154,7 @@ function add(a, b) {
 function add(a, b) {
   return a + b;
 }
-`
+`,
     );
   });
 });
@@ -169,8 +169,8 @@ File docblock
 More info
 
 @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
-        `.trim()
-      )
+        `.trim(),
+      ),
     ).toBe(
       `
 /**
@@ -180,7 +180,7 @@ More info
  *
  * @partially-generated: Codelock<<aoaoreu9aoeu89aoe7u9ao7eu97oaoe98uaoe897u89>>
  */
-      `.trim()
+      `.trim(),
     );
   });
 });
@@ -231,13 +231,13 @@ function add(a, b) {
 
   test("prepend -> get should return same docblock content", () => {
     expect(getFileDocblock(prependFileDocblock(code, docblockContent))).toBe(
-      docblockContent
+      docblockContent,
     );
   });
 
   test("prepend -> remove should return original code", () => {
     expect(removeFileDocblock(prependFileDocblock(code, docblockContent))).toBe(
-      code
+      code,
     );
   });
 });

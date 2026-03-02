@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`CodeBuilder addBlock should generate block using a new builder 1`] = `
 "function cancel(culture: Culture) {
-console.log(\\"New block content section\\");
+console.log("New block content section");
 }
 "
 `;
@@ -11,7 +11,7 @@ exports[`CodeBuilder addDocblock should add multiline docblock with appended new
 "/**
  * Add a block of code, i.e. code with braces around them.
  *
- * @param codeBeforeBlock Code before the block's \\"{\\", e.g. \\"if (a === b)\\"
+ * @param codeBeforeBlock Code before the block's "{", e.g. "if (a === b)"
  * @param blockBuilder A function that uses \`blockBuilder\` to build the code
  * in the block.
  */
@@ -27,21 +27,21 @@ exports[`CodeBuilder addDocblock should add single line docblock with appended n
 
 exports[`CodeBuilder addManualSection should generate manual section using a new builder 1`] = `
 "/* BEGIN MANUAL SECTION mansec */
-console.log(\\"New manual section\\");
+console.log("New manual section");
 /* END MANUAL SECTION */
 "
 `;
 
 exports[`CodeBuilder addManualSection should retain existing manual section content if present 1`] = `
 "/* BEGIN MANUAL SECTION mansec */
-console.log(\\"Existing manual section\\");
+console.log("Existing manual section");
 /* END MANUAL SECTION */
 "
 `;
 
 exports[`CodeBuilder should work 1`] = `
-"import path from \\"path\\";
-import fs from \\"fs\\";
+"import path from "path";
+import fs from "fs";
 
 /* BEGIN MANUAL SECTION custom_imports */
 /* END MANUAL SECTION */

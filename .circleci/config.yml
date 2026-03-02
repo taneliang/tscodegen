@@ -1,22 +1,22 @@
-version: 2
+version: 2.1
 
 jobs:
   build:
     working_directory: ~/tscodegen
     docker:
-      - image: circleci/node:14
+      - image: cimg/node:lts
     steps:
       - checkout
       - restore_cache:
           keys:
-            - v2-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - v2-node-{{ arch }}-{{ .Branch }}-
-            - v2-node-{{ arch }}-
+            - v3-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v3-node-{{ arch }}-{{ .Branch }}-
+            - v3-node-{{ arch }}-
       - run:
           name: Install Dependencies
           command: yarn --frozen-lockfile --cache-folder ~/.cache/yarn --non-interactive
       - save_cache:
-          key: v2-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: v3-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
             - node_modules
