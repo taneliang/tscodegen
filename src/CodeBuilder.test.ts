@@ -1,4 +1,21 @@
 import { CodeBuilder } from "./CodeBuilder";
+import fs from "fs";
+import os from "os";
+import path from "path";
+
+function removeDir(dir: string): void {
+  const fsWithRm = fs as typeof fs & {
+    rmSync?: (
+      path: string,
+      options?: { recursive?: boolean; force?: boolean },
+    ) => void;
+  };
+  if (fsWithRm.rmSync) {
+    fsWithRm.rmSync(dir, { recursive: true, force: true });
+    return;
+  }
+  fs.rmdirSync(dir, { recursive: true });
+}
 
 describe(CodeBuilder, () => {
   describe(CodeBuilder.prototype.add, () => {
@@ -131,13 +148,48 @@ in the block.
   });
 
   describe(CodeBuilder.prototype.format, () => {
-    test("should use provided prettier options", () => {
-      expect(
-        new CodeBuilder({})
-          .addLine('const hello = "world"')
-          .format({ singleQuote: true, semi: false })
-          .toString(),
-      ).toBe("const hello = 'world'\n");
+    test("should resolve prettier config from cwd using a ts filepath", () => {
+      const originalCwd = process.cwd();
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "tscodegen-test-"));
+      fs.writeFileSync(
+        path.join(tempDir, "package.json"),
+        JSON.stringify({
+          name: "temp-test-project",
+          prettier: { singleQuote: true, semi: false },
+        }),
+      );
+
+      try {
+        process.chdir(tempDir);
+        expect(
+          new CodeBuilder({})
+            .addLine('const hello = "world"')
+            .format()
+            .toString(),
+        ).toBe("const hello = 'world'\n");
+      } finally {
+        process.chdir(originalCwd);
+        removeDir(tempDir);
+      }
+    });
+
+    test("should continue formatting if config resolution throws", () => {
+      const originalCwd = process.cwd();
+      const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "tscodegen-test-"));
+      fs.writeFileSync(path.join(tempDir, ".prettierrc"), "{ invalid json ");
+
+      try {
+        process.chdir(tempDir);
+        expect(
+          new CodeBuilder({})
+            .addLine('const hello = "world"')
+            .format()
+            .toString(),
+        ).toBe('const hello = "world";\n');
+      } finally {
+        process.chdir(originalCwd);
+        removeDir(tempDir);
+      }
     });
   });
 
