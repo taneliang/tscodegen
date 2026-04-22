@@ -84,6 +84,73 @@ def compute(x: int) -> int:
 "
 `;
 
+exports[`integration: generated file examples > Terraform main.tf with manual sections inside nested HCL blocks 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# Regenerate with: npm run generate:terraform
+#
+# @generated-editable Codelock<<vZC7TYQw86Q7jvlILXkvO6Pxdwio09Xz>>
+
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+resource "aws_s3_bucket" "logs" {
+  bucket = "acme-app-logs-\${var.environment}"
+
+  lifecycle_rule {
+    enabled = true
+    expiration {
+      days = 90
+    }
+  }
+
+  tags = {
+    Name        = "acme-app-logs"
+    Environment = var.environment
+    # BEGIN MANUAL SECTION extra_tags
+    # Add team-specific tags below; they survive regeneration.
+    Team        = "platform"
+    CostCenter  = "eng-infra-42"
+    # END MANUAL SECTION
+  }
+}
+
+# BEGIN MANUAL SECTION extra_resources
+# Define additional resources here. They are preserved across regenerations.
+# END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Terraform: regenerating preserves an indented manual section when a human adds tags 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<pX2rGIO3dBwyOz2BOHKTmuZu30II8x6r>>
+
+resource "aws_s3_bucket" "logs" {
+  bucket = "logs"
+  tags = {
+    Name = "logs"
+    # BEGIN MANUAL SECTION extra_tags
+    Team        = "platform"
+    CostCenter  = "eng-infra-42"
+    ManagedBy   = terraform.workspace
+    # END MANUAL SECTION
+  }
+}
+"
+`;
+
 exports[`integration: generated file examples > TypeScript file with a custom lock comment (regeneration instructions) 1`] = `
 "/**
  * This file is generated. Do not modify it manually.

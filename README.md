@@ -222,5 +222,33 @@ re-shifting of nested indents (the `if`/`raise` pair keeps its 4-space
 relative indent).
 
 `indent()` accepts any string — typically spaces or `"\t"` — so it also
-covers Makefile recipes, YAML mappings, INI-like formats, or any other
-layout where column position matters.
+covers Makefile recipes, YAML mappings, Terraform/HCL blocks, INI-like
+formats, or any other layout where column position matters.
+
+Example Terraform fragment (note the manual section buried inside
+`tags = { ... }`, which survives regeneration along with whatever the
+author adds inside it):
+
+```typescript
+new CodeFile("main.tf", { commentSyntax: { kind: "line", prefix: "# " } })
+  .build((b) =>
+    b
+      .addLine('resource "aws_s3_bucket" "logs" {')
+      .indent("  ", (res) =>
+        res
+          .addLine('bucket = "logs"')
+          .addLine("tags = {")
+          .indent("  ", (tags) =>
+            tags
+              .addLine('Name = "logs"')
+              .addManualSection("extra_tags", (m) =>
+                m.addLine('Team = "platform"'),
+              ),
+          )
+          .addLine("}"),
+      )
+      .addLine("}"),
+  )
+  .lock()
+  .saveToFile();
+```

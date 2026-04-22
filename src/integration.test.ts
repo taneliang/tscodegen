@@ -394,6 +394,123 @@ describe("integration: generated file examples", () => {
     expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
   });
 
+  test("Terraform main.tf with manual sections inside nested HCL blocks", () => {
+    const filePath = path.join(tmpDir, "main.tf");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("terraform {")
+          .indent("  ", (tf) =>
+            tf
+              .addLine('required_version = ">= 1.6.0"')
+              .addLine("required_providers {")
+              .indent("  ", (rp) =>
+                rp
+                  .addLine("aws = {")
+                  .indent("  ", (aws) =>
+                    aws
+                      .addLine('source  = "hashicorp/aws"')
+                      .addLine('version = "~> 5.0"'),
+                  )
+                  .addLine("}"),
+              )
+              .addLine("}"),
+          )
+          .addLine("}")
+          .addLine()
+          .addLine('resource "aws_s3_bucket" "logs" {')
+          .indent("  ", (res) =>
+            res
+              .addLine('bucket = "acme-app-logs-${var.environment}"')
+              .addLine()
+              .addLine("lifecycle_rule {")
+              .indent("  ", (lc) =>
+                lc
+                  .addLine("enabled = true")
+                  .addLine("expiration {")
+                  .indent("  ", (exp) => exp.addLine("days = 90"))
+                  .addLine("}"),
+              )
+              .addLine("}")
+              .addLine()
+              .addLine("tags = {")
+              .indent("  ", (tags) =>
+                tags
+                  .addLine('Name        = "acme-app-logs"')
+                  .addLine("Environment = var.environment")
+                  .addManualSection("extra_tags", (m) =>
+                    m
+                      .addLine(
+                        "# Add team-specific tags below; they survive regeneration.",
+                      )
+                      .addLine('Team        = "platform"')
+                      .addLine('CostCenter  = "eng-infra-42"'),
+                  ),
+              )
+              .addLine("}"),
+          )
+          .addLine("}")
+          .addLine()
+          .addManualSection("extra_resources", (m) =>
+            m.addLine(
+              "# Define additional resources here. They are preserved across regenerations.",
+            ),
+          ),
+      )
+      .lock("\nRegenerate with: npm run generate:terraform\n")
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Terraform: regenerating preserves an indented manual section when a human adds tags", () => {
+    const filePath = path.join(tmpDir, "main.tf");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    const writeInitial = () =>
+      new CodeFile(filePath, { commentSyntax: syntax })
+        .build((b) =>
+          b
+            .addLine('resource "aws_s3_bucket" "logs" {')
+            .indent("  ", (res) =>
+              res
+                .addLine('bucket = "logs"')
+                .addLine("tags = {")
+                .indent("  ", (tags) =>
+                  tags
+                    .addLine('Name = "logs"')
+                    .addManualSection("extra_tags", (m) =>
+                      m.addLine('Team = "platform"'),
+                    ),
+                )
+                .addLine("}"),
+            )
+            .addLine("}"),
+        )
+        .lock()
+        .saveToFile();
+
+    writeInitial();
+
+    // Human edits inside the manual section at the matching (4-space) indent.
+    const initial = fs.readFileSync(filePath, "utf-8");
+    const edited = initial.replace(
+      '    Team = "platform"',
+      [
+        '    Team        = "platform"',
+        '    CostCenter  = "eng-infra-42"',
+        "    ManagedBy   = terraform.workspace",
+      ].join("\n"),
+    );
+    fs.writeFileSync(filePath, edited, "utf-8");
+
+    // Regenerate with the same builder.
+    writeInitial();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
   test("Makefile with tab-indented recipe and a manual section", () => {
     const filePath = path.join(tmpDir, "Makefile");
     new CodeFile(filePath, {
