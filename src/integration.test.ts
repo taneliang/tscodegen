@@ -511,6 +511,83 @@ describe("integration: generated file examples", () => {
     expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
   });
 
+  test("regenerating at a deeper indent shifts the whole manual section (markers + body + nested indents)", () => {
+    const filePath = path.join(tmpDir, "module.py");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    // v1: the section lives inside a top-level function (1 indent level).
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b.addLine("def foo():").indent("    ", (fn) =>
+          fn.addLine("x = 1").addManualSection("body", (m) =>
+            m
+              .addLine("if x > 0:")
+              .indent("    ", (branch) => branch.addLine("return x"))
+              .addLine("return 0"),
+          ),
+        ),
+      )
+      .lock()
+      .saveToFile();
+
+    // v2: the generator now wraps that function in a class, moving the
+    // section to 2 indent levels. The whole section — BEGIN marker, body
+    // lines, the relative indent on `return x`, and END marker — should
+    // shift uniformly to the new depth.
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b.addLine("class Bar:").indent("    ", (cls) =>
+          cls.addLine("def foo(self):").indent("    ", (fn) =>
+            fn.addLine("x = 1").addManualSection("body", (m) =>
+              m
+                .addLine("if x > 0:")
+                .indent("    ", (branch) => branch.addLine("return x"))
+                .addLine("return 0"),
+            ),
+          ),
+        ),
+      )
+      .lock()
+      .saveToFile();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("regenerating at a shallower indent un-shifts the whole manual section", () => {
+    const filePath = path.join(tmpDir, "module.py");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    // v1: section is 2 levels deep (inside a method inside a class).
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b
+          .addLine("class Outer:")
+          .indent("    ", (cls) =>
+            cls
+              .addLine("def method(self):")
+              .indent("    ", (fn) =>
+                fn.addManualSection("body", (m) =>
+                  m.addLine("a = 1").addLine("b = 2"),
+                ),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+
+    // v2: the generator has been changed to emit the section at the top
+    // level; the section should come out at column 0, with no stale indent
+    // left behind on the markers or body.
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b.addManualSection("body", (m) => m.addLine("a = 1").addLine("b = 2")),
+      )
+      .lock()
+      .saveToFile();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
   test("SQL schema with manual section inside a CREATE TABLE column list", () => {
     const filePath = path.join(tmpDir, "users.sql");
     new CodeFile(filePath, {

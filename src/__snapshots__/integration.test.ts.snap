@@ -331,6 +331,38 @@ export class Greeter {
 "
 `;
 
+exports[`integration: generated file examples > regenerating at a deeper indent shifts the whole manual section (markers + body + nested indents) 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<x+SkYLxt2TlWWx2YuUOKDCv6QkCSZj5c>>
+
+class Bar:
+    def foo(self):
+        x = 1
+        # BEGIN MANUAL SECTION body
+        if x > 0:
+            return x
+        return 0
+        # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > regenerating at a shallower indent un-shifts the whole manual section 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<CW9HKidpI5Q3IhPtbAwboG7aeJzyxbqD>>
+
+# BEGIN MANUAL SECTION body
+a = 1
+b = 2
+# END MANUAL SECTION
+"
+`;
+
 exports[`integration: generated file examples > uneditable TypeScript constants file 1`] = `
 "/**
  * This file is generated. Do not modify it manually.
