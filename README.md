@@ -227,10 +227,10 @@ formats, or any other layout where column position matters.
 
 ### Supported file types by `CommentSyntax`
 
-tscodegen doesn't care what the comment prefix string is, so any
+tscodegen treats the comment prefix as an opaque string, so any
 language whose comments fit one of the supported shapes works out of
-the box. The table below covers the file types most people generating
-code in 2026 would actually target.
+the box. The table below lists the configurations for common target
+file types.
 
 | File type                           | `CommentSyntax`                               |
 | ----------------------------------- | --------------------------------------------- |
