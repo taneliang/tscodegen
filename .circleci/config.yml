@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@5.4.3
+
 jobs:
   build:
     working_directory: ~/tscodegen
@@ -35,3 +38,5 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: coverage
+      - codecov/upload:
+          files: ./coverage/lcov.info

@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped dev dependencies to latest: TypeScript 6.x, ESLint 10.x, `typescript-eslint` 8.x, Prettier 3.8.x, Vitest 4.x, and related tooling.
 - ESLint flat config simplified to use `typescript-eslint`'s config helpers and `@vitest/eslint-plugin` in place of `eslint-plugin-jest`.
 - TypeScript target updated from ES2018 to ES2022 to match the current supported Node versions.
-- Dropped `codecov` dependency; Vitest's built-in v8 coverage is produced and stored as CI artifacts instead.
+- Dropped the deprecated `codecov` npm uploader; CI now uploads coverage to Codecov via the official `codecov/codecov@5` CircleCI orb, using the `lcov.info` produced by Vitest's v8 coverage.
 - Dropped `@eslint/eslintrc` compat layer.
 - Raised minimum Node.js version to `>=20.18.0`.
 
