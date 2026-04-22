@@ -1,13 +1,13 @@
-// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CodeBuilder addBlock should generate block using a new builder 1`] = `
+exports[`CodeBuilder > addBlock > should generate block using a new builder 1`] = `
 "function cancel(culture: Culture) {
 console.log("New block content section");
 }
 "
 `;
 
-exports[`CodeBuilder addDocblock should add multiline docblock with appended newline 1`] = `
+exports[`CodeBuilder > addDocblock > should add multiline docblock with appended newline 1`] = `
 "/**
  * Add a block of code, i.e. code with braces around them.
  *
@@ -18,28 +18,28 @@ exports[`CodeBuilder addDocblock should add multiline docblock with appended new
 "
 `;
 
-exports[`CodeBuilder addDocblock should add single line docblock with appended newline 1`] = `
+exports[`CodeBuilder > addDocblock > should add single line docblock with appended newline 1`] = `
 "/**
  * Only the wisest, non-binary hominids can see the code below.
  */
 "
 `;
 
-exports[`CodeBuilder addManualSection should generate manual section using a new builder 1`] = `
+exports[`CodeBuilder > addManualSection > should generate manual section using a new builder 1`] = `
 "/* BEGIN MANUAL SECTION mansec */
 console.log("New manual section");
 /* END MANUAL SECTION */
 "
 `;
 
-exports[`CodeBuilder addManualSection should retain existing manual section content if present 1`] = `
+exports[`CodeBuilder > addManualSection > should retain existing manual section content if present 1`] = `
 "/* BEGIN MANUAL SECTION mansec */
 console.log("Existing manual section");
 /* END MANUAL SECTION */
 "
 `;
 
-exports[`CodeBuilder should work 1`] = `
+exports[`CodeBuilder > should work 1`] = `
 "import path from "path";
 import fs from "fs";
 

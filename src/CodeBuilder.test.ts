@@ -1,20 +1,11 @@
+import { describe, test, expect, vi } from "vitest";
 import { CodeBuilder } from "./CodeBuilder";
 import fs from "fs";
 import os from "os";
 import path from "path";
 
 function removeDir(dir: string): void {
-  const fsWithRm = fs as typeof fs & {
-    rmSync?: (
-      path: string,
-      options?: { recursive?: boolean; force?: boolean },
-    ) => void;
-  };
-  if (fsWithRm.rmSync) {
-    fsWithRm.rmSync(dir, { recursive: true, force: true });
-    return;
-  }
-  fs.rmdirSync(dir, { recursive: true });
+  fs.rmSync(dir, { recursive: true, force: true });
 }
 
 describe(CodeBuilder, () => {
@@ -64,7 +55,7 @@ in the block.
       const mockBuiltCode = 'console.log("New block content section");';
       const codeBeforeBlock = "function cancel(culture: Culture)";
 
-      const mockBuilder = jest.fn().mockImplementation(() => ({
+      const mockBuilder = vi.fn().mockImplementation(() => ({
         toString: () => mockBuiltCode,
         hasManualSections: () => false,
       }));
@@ -82,13 +73,11 @@ in the block.
     });
 
     test("should set hasManualSections to true if added section has a manual section", () => {
-      const mockBuilderWithManualSections = jest
-        .fn()
-        .mockImplementation(() => ({
-          toString: () => "",
-          hasManualSections: () => true,
-        }));
-      const mockBuilderWithoutManualSections = jest
+      const mockBuilderWithManualSections = vi.fn().mockImplementation(() => ({
+        toString: () => "",
+        hasManualSections: () => true,
+      }));
+      const mockBuilderWithoutManualSections = vi
         .fn()
         .mockImplementation(() => ({
           toString: () => "",
@@ -118,7 +107,7 @@ in the block.
 
   describe(CodeBuilder.prototype.addManualSection, () => {
     test("should generate manual section using a new builder", () => {
-      const mockSectionBuilder = jest.fn().mockImplementation(() => ({
+      const mockSectionBuilder = vi.fn().mockImplementation(() => ({
         toString: () => 'console.log("New manual section");',
       }));
       const builder = new CodeBuilder({
@@ -135,7 +124,7 @@ in the block.
     });
 
     test("should retain existing manual section content if present", () => {
-      const mockSectionBuilder = jest.fn().mockImplementation(() => ({
+      const mockSectionBuilder = vi.fn().mockImplementation(() => ({
         toString: () => "NEW MANUAL SECTION; SHOULD NOT APPEAR",
       }));
       const builder = new CodeBuilder({

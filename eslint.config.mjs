@@ -1,49 +1,38 @@
-import { defineConfig } from "eslint/config";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import jest from "eslint-plugin-jest";
-import prettier from "eslint-plugin-prettier";
-import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import tseslint from "typescript-eslint";
+import vitest from "@vitest/eslint-plugin";
+import prettierPlugin from "eslint-plugin-prettier";
+import prettierConfig from "eslint-config-prettier";
+import globals from "globals";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-export default defineConfig([
+export default [
   {
-    extends: compat.extends(
-      "eslint:recommended",
-      "plugin:@typescript-eslint/recommended",
-      "plugin:jest/recommended",
-      "plugin:jest/style",
-      "plugin:prettier/recommended",
-    ),
-
-    plugins: {
-      "@typescript-eslint": typescriptEslint,
-      jest,
-      prettier,
-    },
-
+    ignores: ["dist/**", "coverage/**", "test-reports/**", "node_modules/**"],
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
     languageOptions: {
       globals: {
         ...globals.node,
       },
-
-      parser: tsParser,
     },
-
+    plugins: {
+      prettier: prettierPlugin,
+    },
     rules: {
+      ...prettierConfig.rules,
       "prettier/prettier": "error",
-      "jest/valid-title": ["error", { ignoreTypeOfDescribeName: true }],
     },
   },
-]);
+  {
+    files: ["src/**/*.test.ts"],
+    plugins: {
+      vitest,
+    },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      "vitest/valid-title": ["error", { ignoreTypeOfDescribeName: true }],
+    },
+  },
+];

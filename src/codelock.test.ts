@@ -1,3 +1,4 @@
+import { describe, test, expect } from "vitest";
 import { getCodelockInfo, lockCode, verifyLock } from "./codelock";
 
 const codeWithoutDocblock = `

@@ -1,4 +1,7 @@
-.eslintrc.json
-jest.config.js
+.circleci
+eslint.config.mjs
+vitest.config.ts
 tsconfig.*
 src
+test-reports
+coverage

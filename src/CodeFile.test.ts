@@ -1,14 +1,27 @@
+import {
+  describe,
+  test,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+  type MockedClass,
+} from "vitest";
 import mockFs from "mock-fs";
 import fs from "fs";
 import { CodeFile } from "./CodeFile";
 import { CodeBuilder } from "./CodeBuilder";
 
-jest.mock("./CodeBuilder", () => ({
-  CodeBuilder: jest.fn().mockReturnValue({
-    toString: () => "BUILT CODE",
-    hasManualSections: () => true,
-  }),
-}));
+vi.mock("./CodeBuilder", () => {
+  const CodeBuilder = vi.fn().mockImplementation(function (this: {
+    toString: () => string;
+    hasManualSections: () => boolean;
+  }) {
+    this.toString = () => "BUILT CODE";
+    this.hasManualSections = () => true;
+  });
+  return { CodeBuilder };
+});
 
 const mockCode = `
 /**
@@ -39,7 +52,7 @@ describe(CodeFile, () => {
 
   afterEach(() => {
     mockFs.restore();
-    (CodeBuilder as jest.MockedClass<typeof CodeBuilder>).mockClear();
+    (CodeBuilder as MockedClass<typeof CodeBuilder>).mockClear();
   });
 
   describe(CodeFile.prototype.constructor, () => {
@@ -58,7 +71,7 @@ describe(CodeFile, () => {
     });
 
     test("should return true for newly built and locked file", () => {
-      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const mockBuilderBuilder = vi.fn().mockImplementation((b) => b);
       const builtFile = new CodeFile(CODE_PATH)
         .build(mockBuilderBuilder)
         .lock();
@@ -68,7 +81,7 @@ describe(CodeFile, () => {
 
   describe(CodeFile.prototype.build, () => {
     test("should build and lock new code", () => {
-      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const mockBuilderBuilder = vi.fn().mockImplementation((b) => b);
       const builtFile = new CodeFile(CODE_PATH).build(mockBuilderBuilder);
       // Expect new CodeBuilder to have been used
       expect(CodeBuilder.prototype.constructor).toHaveBeenCalledTimes(1);
@@ -79,7 +92,7 @@ describe(CodeFile, () => {
 
   describe(CodeFile.prototype.lock, () => {
     test("should add lock to code", () => {
-      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const mockBuilderBuilder = vi.fn().mockImplementation((b) => b);
       const builtFile = new CodeFile(CODE_PATH)
         .build(mockBuilderBuilder)
         .lock();
@@ -92,7 +105,7 @@ describe(CodeFile, () => {
       const customCommentLine2 =
         "`npx gentgen generate src/gents/User/UserSchema.ts`";
 
-      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const mockBuilderBuilder = vi.fn().mockImplementation((b) => b);
       const builtFile = new CodeFile(CODE_PATH)
         .build(mockBuilderBuilder)
         .lock(`\n${customCommentLine1}\n${customCommentLine2}\n`);
@@ -106,8 +119,8 @@ describe(CodeFile, () => {
 
   describe(CodeFile.prototype.saveToFile, () => {
     test("should save file contents to path passed at construction", () => {
-      const writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
-      const mockBuilderBuilder = jest.fn().mockImplementation((b) => b);
+      const writeFileSyncSpy = vi.spyOn(fs, "writeFileSync");
+      const mockBuilderBuilder = vi.fn().mockImplementation((b) => b);
 
       const file = new CodeFile(CODE_PATH);
 
