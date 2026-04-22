@@ -27,9 +27,9 @@ code, with optional manually editable sections and tamper detection.
 
 - Codelock tamper detection. A hash is added to the docblock of every
   generated file to make it easy to detect if a file has been changed outside
-  the generated manual sections. In the future, this can be [enforced with an
-  ESLint rule](https://github.com/taneliang/tscodegen/issues/1) (PRs
-  welcome!).
+  the generated manual sections. The [bundled `verify-codelock`
+  CLI](#verifying-codelocks-in-ci-and-pre-commit-hooks) enforces this for you
+  across TypeScript _and_ non-TypeScript generated files.
 
 - No template files. tscodegen uses [template
   literals](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)
@@ -164,3 +164,76 @@ path/to/generated.ts linguist-generated=true
 Everything else works the same: `verify()` detects tampering outside the
 manual sections, `lock()` adds the hash, and `saveToFile()` writes the
 result. Manual-section keys still must be non-empty and whitespace-free.
+
+## Verifying codelocks in CI and pre-commit hooks
+
+tscodegen ships with a `verify-codelock` CLI that walks a set of files and
+confirms that every tscodegen-generated file still has a valid codelock hash.
+It accepts eslint- / prettier-style glob patterns and automatically detects
+the comment syntax of each file (JSDoc for `.ts`, line comments for
+`.gitattributes`, etc.), so a single invocation covers both TypeScript and
+non-TypeScript generated output.
+
+Files that are _not_ tscodegen-generated (i.e. do not contain an
+`@generated Codelock<<...>>` or `@generated-editable Codelock<<...>>` marker)
+are silently skipped, so it's safe to point `verify-codelock` at a broad
+glob like `**/*` without having to maintain a separate allowlist.
+
+### Usage
+
+Run it through `npx` without installing anything:
+
+```sh
+npx -p @elg/tscodegen verify-codelock 'src/**' 'packages/**/*.gen.ts'
+```
+
+Or install tscodegen as a dev dependency and call it from a script:
+
+```json
+{
+  "scripts": {
+    "verify:codegen": "verify-codelock 'src/**' '.gitattributes'"
+  }
+}
+```
+
+### CLI reference
+
+```
+verify-codelock [options] <pattern> [<pattern>...]
+
+Options:
+  --ignore <pattern>    Exclude files matching <pattern>. May be repeated.
+  --quiet, -q           Suppress per-file output and the summary line.
+  --verbose             Log the status of every file, including skipped ones.
+  --no-color            Disable colored output.
+  --help, -h            Print help and exit.
+  --version, -v         Print the installed tscodegen version and exit.
+
+Exit codes:
+  0   All matched tscodegen-generated files have valid codelocks.
+  1   One or more files were tampered with, matched no files, or could not be
+      read.
+  2   Invalid invocation (e.g. missing patterns, unknown option).
+```
+
+### Example: CI check
+
+```yaml
+- run: npx -p @elg/tscodegen verify-codelock '**/*' --ignore '**/node_modules/**' --ignore '**/dist/**'
+```
+
+### Example: pre-commit hook
+
+With [Husky](https://typicode.github.io/husky/) + [lint-staged](https://github.com/okonet/lint-staged):
+
+```json
+{
+  "lint-staged": {
+    "*": "verify-codelock"
+  }
+}
+```
+
+`lint-staged` passes the staged file paths as positional arguments, and
+`verify-codelock` will skip any non-generated files automatically.
