@@ -90,17 +90,20 @@ describe(extractManualSections, () => {
     ).toEqual({});
   });
 
-  test("should extract single line manual section", () => {
+  test("should ignore pathological single-line markers", () => {
+    // This form is not emitted by `createManualSection` and is now rejected
+    // by the indent-aware regex (which requires each marker to be on its own
+    // line). Historical behaviour also extracted this shape, but that came
+    // with a bug where multi-line bodies were only dedented on the first
+    // line.
     expect(
       extractManualSections(
         '/* BEGIN MANUAL SECTION key */console.log("code");/* END MANUAL SECTION */',
       ),
-    ).toEqual({
-      key: 'console.log("code");',
-    });
+    ).toEqual({});
   });
 
-  test("should extract multiline manual section", () => {
+  test("should extract and dedent a multiline manual section", () => {
     expect(
       extractManualSections(`
         class One extends Zero {
@@ -115,11 +118,11 @@ describe(extractManualSections, () => {
       `),
     ).toEqual({
       key: `console.log("line one"); // Comment
-            console.log("line two");`,
+console.log("line two");`,
     });
   });
 
-  test("should extract multiple manual sections", () => {
+  test("should extract multiple manual sections, dedenting each one", () => {
     expect(
       extractManualSections(`
         /* BEGIN MANUAL SECTION custom-imports_empty_section */
@@ -144,9 +147,9 @@ describe(extractManualSections, () => {
     ).toEqual({
       "custom-imports_empty_section": "",
       "One-constructor_with_code": `console.log("custom constructor");
-            /* BEGIN some other thing */
-            console.log("more custom constructing");
-            /* END some other thing */`,
+/* BEGIN some other thing */
+console.log("more custom constructing");
+/* END some other thing */`,
       "custom-methods_blank_line_section": "",
     });
   });
@@ -180,17 +183,12 @@ describe(emptyManualSections, () => {
     );
   });
 
-  function expectedEmptySectionForSectionKey(key: string) {
-    return `/* BEGIN MANUAL SECTION ${key} */
-/* END MANUAL SECTION */`;
+  function expectedEmptySectionForSectionKey(key: string, indent = "") {
+    return `${indent}/* BEGIN MANUAL SECTION ${key} */
+${indent}/* END MANUAL SECTION */`;
   }
 
   test("should reset an empty manual section", () => {
-    expect(
-      emptyManualSections(
-        "/* BEGIN MANUAL SECTION key *//* END MANUAL SECTION */",
-      ),
-    ).toBe(expectedEmptySectionForSectionKey("key"));
     expect(
       emptyManualSections(
         "/* BEGIN MANUAL SECTION key */\n/* END MANUAL SECTION */",
@@ -203,23 +201,23 @@ describe(emptyManualSections, () => {
     ).toBe(expectedEmptySectionForSectionKey("key"));
   });
 
-  test("should empty single line manual section", () => {
-    expect(
-      emptyManualSections(
-        '/* BEGIN MANUAL SECTION key */console.log("code");/* END MANUAL SECTION */',
-      ),
-    ).toBe(expectedEmptySectionForSectionKey("key"));
-  });
-
   test("should empty multiline manual section", () => {
     expect(
       emptyManualSections(
-        '/* BEGIN MANUAL SECTION key */\nconsole.log("one");\nconsole.log("two");/* END MANUAL SECTION */',
+        '/* BEGIN MANUAL SECTION key */\nconsole.log("one");\nconsole.log("two");\n/* END MANUAL SECTION */',
       ),
     ).toBe(expectedEmptySectionForSectionKey("key"));
   });
 
-  test("should empty multiple manual sections", () => {
+  test("should preserve indent when emptying an indented manual section", () => {
+    expect(
+      emptyManualSections(`    /* BEGIN MANUAL SECTION key */
+    console.log("one");
+    /* END MANUAL SECTION */`),
+    ).toBe(expectedEmptySectionForSectionKey("key", "    "));
+  });
+
+  test("should empty multiple manual sections, preserving each one's indent", () => {
     expect(
       emptyManualSections(`
         /* BEGIN MANUAL SECTION custom-imports_empty_section */
@@ -243,17 +241,17 @@ describe(emptyManualSections, () => {
       `),
     ).toBe(`
         /* BEGIN MANUAL SECTION custom-imports_empty_section */
-/* END MANUAL SECTION */
+        /* END MANUAL SECTION */
 
         class One extends Zero {
           constructor() {
             this.value = 1;
             /* BEGIN MANUAL SECTION One-constructor_with_code */
-/* END MANUAL SECTION */
+            /* END MANUAL SECTION */
           }
 
           /* BEGIN MANUAL SECTION custom-methods_blank_line_section */
-/* END MANUAL SECTION */
+          /* END MANUAL SECTION */
         }
       `);
   });

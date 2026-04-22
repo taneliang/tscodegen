@@ -136,6 +136,81 @@ in the block.
     });
   });
 
+  describe(CodeBuilder.prototype.indent, () => {
+    test("should prefix each line of nested output with the given indent", () => {
+      const output = new CodeBuilder({})
+        .addLine("class Foo:")
+        .indent("    ", (b) => b.addLine("def bar(self):").addLine("    pass"))
+        .toString();
+      expect(output).toBe(`class Foo:\n    def bar(self):\n        pass\n`);
+    });
+
+    test("should leave empty lines unindented (no trailing whitespace)", () => {
+      const output = new CodeBuilder({})
+        .addLine("header")
+        .indent("  ", (b) => b.addLine("first").addLine().addLine("third"))
+        .toString();
+      expect(output).toBe("header\n  first\n\n  third\n");
+    });
+
+    test("should compose nested indent scopes additively", () => {
+      const output = new CodeBuilder({})
+        .addLine("outer")
+        .indent("  ", (b) =>
+          b.addLine("depth 1").indent("  ", (bb) => bb.addLine("depth 2")),
+        )
+        .toString();
+      expect(output).toBe("outer\n  depth 1\n    depth 2\n");
+    });
+
+    test("should indent manual section markers and body when nested", () => {
+      const output = new CodeBuilder({}, { kind: "line", prefix: "# " })
+        .addLine("def compute(x):")
+        .indent("    ", (b) =>
+          b
+            .addLine("result = x + 1")
+            .addManualSection("postprocess", (m) => m.addLine("return result")),
+        )
+        .toString();
+      expect(output).toBe(
+        `def compute(x):\n    result = x + 1\n    # BEGIN MANUAL SECTION postprocess\n    return result\n    # END MANUAL SECTION\n`,
+      );
+    });
+
+    test("should re-indent an existing manual section body when regenerating inside an indent scope", () => {
+      const builder = new CodeBuilder(
+        { body: "if x:\n    return 42\nreturn 0" },
+        { kind: "line", prefix: "# " },
+      );
+      const output = builder
+        .addLine("def f():")
+        .indent("    ", (b) =>
+          b.addManualSection("body", (m) => m.addLine("placeholder")),
+        )
+        .toString();
+      expect(output).toBe(
+        `def f():\n    # BEGIN MANUAL SECTION body\n    if x:\n        return 42\n    return 0\n    # END MANUAL SECTION\n`,
+      );
+    });
+
+    test("should propagate hasManualSections out of nested indent scope", () => {
+      const builder = new CodeBuilder({});
+      expect(builder.hasManualSections()).toBe(false);
+      builder.indent("  ", (b) =>
+        b.addManualSection("key", (m) => m.addLine("body")),
+      );
+      expect(builder.hasManualSections()).toBe(true);
+    });
+
+    test("should accept tab characters as indent", () => {
+      const output = new CodeBuilder({})
+        .addLine("root")
+        .indent("\t", (b) => b.addLine("child"))
+        .toString();
+      expect(output).toBe("root\n\tchild\n");
+    });
+  });
+
   describe(CodeBuilder.prototype.format, () => {
     test("should resolve prettier config from cwd using a ts filepath", () => {
       const originalCwd = process.cwd();
