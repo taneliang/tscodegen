@@ -511,6 +511,36 @@ describe("integration: generated file examples", () => {
     expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
   });
 
+  test("SQL schema with manual section inside a CREATE TABLE column list", () => {
+    const filePath = path.join(tmpDir, "users.sql");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "-- " },
+    })
+      .build((b) =>
+        b
+          .addLine("CREATE TABLE users (")
+          .indent("  ", (cols) =>
+            cols
+              .addLine("id          UUID PRIMARY KEY,")
+              .addLine("email       TEXT NOT NULL,")
+              .addLine("created_at  TIMESTAMP DEFAULT now(),")
+              .addManualSection("extra_columns", (m) =>
+                m
+                  .addLine("-- Project-specific columns go below. They survive")
+                  .addLine("-- regeneration.")
+                  .addLine("team_id     INTEGER REFERENCES teams(id),")
+                  .addLine("last_login  TIMESTAMP"),
+              ),
+          )
+          .addLine(");")
+          .addLine()
+          .addLine("CREATE INDEX users_email_idx ON users (email);"),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
   test("Makefile with tab-indented recipe and a manual section", () => {
     const filePath = path.join(tmpDir, "Makefile");
     new CodeFile(filePath, {

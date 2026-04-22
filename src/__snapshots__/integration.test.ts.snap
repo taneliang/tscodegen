@@ -84,6 +84,29 @@ def compute(x: int) -> int:
 "
 `;
 
+exports[`integration: generated file examples > SQL schema with manual section inside a CREATE TABLE column list 1`] = `
+"-- This file is generated with manually editable sections. Only make
+-- modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+-- designators.
+--
+-- @generated-editable Codelock<<qmhkvK+QHgb0QcvyyZE0Yn3hWQMMqfrd>>
+
+CREATE TABLE users (
+  id          UUID PRIMARY KEY,
+  email       TEXT NOT NULL,
+  created_at  TIMESTAMP DEFAULT now(),
+  -- BEGIN MANUAL SECTION extra_columns
+  -- Project-specific columns go below. They survive
+  -- regeneration.
+  team_id     INTEGER REFERENCES teams(id),
+  last_login  TIMESTAMP
+  -- END MANUAL SECTION
+);
+
+CREATE INDEX users_email_idx ON users (email);
+"
+`;
+
 exports[`integration: generated file examples > Terraform main.tf with manual sections inside nested HCL blocks 1`] = `
 "# This file is generated with manually editable sections. Only make
 # modifications between BEGIN MANUAL SECTION and END MANUAL SECTION

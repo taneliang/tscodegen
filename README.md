@@ -225,6 +225,53 @@ relative indent).
 covers Makefile recipes, YAML mappings, Terraform/HCL blocks, INI-like
 formats, or any other layout where column position matters.
 
+### Supported file types by `CommentSyntax`
+
+tscodegen doesn't care what the comment prefix string is, so any
+language whose comments fit one of the supported shapes works out of
+the box. The table below maps common target file types to the
+corresponding `CommentSyntax` config.
+
+| File type                           | `CommentSyntax`                               |
+| ----------------------------------- | --------------------------------------------- |
+| TypeScript / JavaScript / TSX / JSX | `{ kind: "jsdoc" }` (default)                 |
+| Go, Rust, Swift, Kotlin, Dart, Java | `{ kind: "jsdoc" }`                           |
+| C, C++, Objective-C                 | `{ kind: "jsdoc" }`                           |
+| CSS / SCSS / LESS                   | `{ kind: "jsdoc" }`                           |
+| PHP, Groovy, Jenkinsfile, Protobuf  | `{ kind: "jsdoc" }`                           |
+| TypeScript (line-comment preferred) | `{ kind: "line", prefix: "// " }`             |
+| Python, Ruby, Perl, R, PowerShell   | `{ kind: "line", prefix: "# " }`              |
+| Shell / Bash / zsh                  | `{ kind: "line", prefix: "# " }`              |
+| YAML, TOML, Dockerfile, `.env`      | `{ kind: "line", prefix: "# " }`              |
+| Terraform / HCL, GraphQL            | `{ kind: "line", prefix: "# " }`              |
+| Makefile                            | `{ kind: "line", prefix: "# " }` + tab indent |
+| `.gitattributes`, `.gitignore`      | `{ kind: "line", prefix: "# " }`              |
+| nginx.conf, systemd unit, BUILD     | `{ kind: "line", prefix: "# " }`              |
+| SQL, Haskell, Lua, Elm              | `{ kind: "line", prefix: "-- " }`             |
+| Lisp / Clojure / Scheme, INI        | `{ kind: "line", prefix: "; " }`              |
+| LaTeX, MATLAB, Erlang, Prolog       | `{ kind: "line", prefix: "% " }`              |
+| Fortran 90+                         | `{ kind: "line", prefix: "! " }`              |
+| Visual Basic / VBA                  | `{ kind: "line", prefix: "' " }`              |
+
+The Python/YAML/Terraform/Makefile/SQL snapshots in
+`src/__snapshots__/integration.test.ts.snap` are a living catalogue of
+what generated output looks like for each of these.
+
+### Known limitations
+
+- **JSON has no comment syntax**, so it cannot be locked. If you need
+  to generate JSON alongside other files, either emit a companion
+  metadata file or use JSONC (`{ kind: "line", prefix: "// " }`).
+- **XML / HTML / SVG / Markdown / Vue SFCs / MDX** use `<!-- ... -->`
+  wrapping comments, which is not yet expressible in `CommentSyntax`.
+  This is a planned follow-up (a `{ kind: "wrapped"; open, close }`
+  variant).
+- **Shebangs must be line 1.** `lock()` prepends its docblock, so a
+  locked shell script's `#!/usr/bin/env bash` ends up below the
+  docblock. For scripts invoked as executables, either prepend the
+  shebang yourself after locking or invoke them via the interpreter
+  directly.
+
 Example Terraform fragment (note the manual section buried inside
 `tags = { ... }`, which survives regeneration along with whatever the
 author adds inside it):
