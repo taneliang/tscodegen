@@ -229,29 +229,26 @@ formats, or any other layout where column position matters.
 
 tscodegen doesn't care what the comment prefix string is, so any
 language whose comments fit one of the supported shapes works out of
-the box. The table below maps common target file types to the
-corresponding `CommentSyntax` config.
+the box. The table below covers the file types most people generating
+code in 2026 would actually target.
 
 | File type                           | `CommentSyntax`                               |
 | ----------------------------------- | --------------------------------------------- |
 | TypeScript / JavaScript / TSX / JSX | `{ kind: "jsdoc" }` (default)                 |
-| Go, Rust, Swift, Kotlin, Dart, Java | `{ kind: "jsdoc" }`                           |
-| C, C++, Objective-C                 | `{ kind: "jsdoc" }`                           |
+| Go, Rust, Swift, Kotlin, Java       | `{ kind: "jsdoc" }`                           |
+| C, C++                              | `{ kind: "jsdoc" }`                           |
 | CSS / SCSS / LESS                   | `{ kind: "jsdoc" }`                           |
-| PHP, Groovy, Jenkinsfile, Protobuf  | `{ kind: "jsdoc" }`                           |
-| TypeScript (line-comment preferred) | `{ kind: "line", prefix: "// " }`             |
-| Python, Ruby, Perl, R, PowerShell   | `{ kind: "line", prefix: "# " }`              |
+| Protobuf                            | `{ kind: "jsdoc" }`                           |
+| TS/JS (line-comment preferred)      | `{ kind: "line", prefix: "// " }`             |
+| Python, Ruby                        | `{ kind: "line", prefix: "# " }`              |
 | Shell / Bash / zsh                  | `{ kind: "line", prefix: "# " }`              |
-| YAML, TOML, Dockerfile, `.env`      | `{ kind: "line", prefix: "# " }`              |
+| YAML, TOML                          | `{ kind: "line", prefix: "# " }`              |
+| Dockerfile, `.env`                  | `{ kind: "line", prefix: "# " }`              |
 | Terraform / HCL, GraphQL            | `{ kind: "line", prefix: "# " }`              |
 | Makefile                            | `{ kind: "line", prefix: "# " }` + tab indent |
 | `.gitattributes`, `.gitignore`      | `{ kind: "line", prefix: "# " }`              |
-| nginx.conf, systemd unit, BUILD     | `{ kind: "line", prefix: "# " }`              |
-| SQL, Haskell, Lua, Elm              | `{ kind: "line", prefix: "-- " }`             |
-| Lisp / Clojure / Scheme, INI        | `{ kind: "line", prefix: "; " }`              |
-| LaTeX, MATLAB, Erlang, Prolog       | `{ kind: "line", prefix: "% " }`              |
-| Fortran 90+                         | `{ kind: "line", prefix: "! " }`              |
-| Visual Basic / VBA                  | `{ kind: "line", prefix: "' " }`              |
+| nginx.conf, systemd unit            | `{ kind: "line", prefix: "# " }`              |
+| SQL                                 | `{ kind: "line", prefix: "-- " }`             |
 
 The Python/YAML/Terraform/Makefile/SQL snapshots in
 `src/__snapshots__/integration.test.ts.snap` are a living catalogue of
