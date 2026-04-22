@@ -209,6 +209,13 @@ in the block.
         .toString();
       expect(output).toBe("root\n\tchild\n");
     });
+
+    test("should only apply indent at the start of a line when `add` is called repeatedly mid-line", () => {
+      const output = new CodeBuilder({})
+        .indent("  ", (b) => b.add("foo").add("bar").addLine(" baz"))
+        .toString();
+      expect(output).toBe("  foobar baz\n");
+    });
   });
 
   describe(CodeBuilder.prototype.format, () => {

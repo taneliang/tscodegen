@@ -126,15 +126,12 @@ export function extractManualSections(
   syntax: CommentSyntax = DEFAULT_COMMENT_SYNTAX,
 ): ManualSectionMap {
   const regExp = getSectionMatchRegExp(syntax);
-  const allMatches = code.matchAll(regExp);
   const manualSections: ManualSectionMap = {};
-  [...allMatches].forEach((match: RegExpMatchArray) => {
-    if (!match.groups) {
-      return;
-    }
-    const { key, code: body, indent = "" } = match.groups;
+  for (const match of code.matchAll(regExp)) {
+    // The regex always has named groups, so `match.groups` is always defined.
+    const { key, code: body, indent = "" } = match.groups!;
     manualSections[key] = dedent(body, indent).trim();
-  });
+  }
   return manualSections;
 }
 
@@ -155,12 +152,12 @@ export function emptyManualSections(
 ): string {
   const regExp = getSectionMatchRegExp(syntax);
   return code.replace(regExp, (...args) => {
-    const groups = args[args.length - 1] as
-      | { key: string; indent?: string }
-      | undefined;
-    if (!groups) {
-      return args[0] as string;
-    }
+    // The regex always has named groups, so the last positional argument is
+    // always the groups object.
+    const groups = args[args.length - 1] as {
+      key: string;
+      indent?: string;
+    };
     return createManualSection(groups.key, "", syntax, groups.indent ?? "");
   });
 }
