@@ -206,3 +206,130 @@ describe("reversibility", () => {
     );
   });
 });
+
+describe("line comment syntax", () => {
+  const syntax = { kind: "line", prefix: "# " } as const;
+
+  const gitattributesBody = `
+# BEGIN MANUAL SECTION manual
+# add custom rules here
+# END MANUAL SECTION
+
+path/to/generated.ts linguist-generated=true
+`.trim();
+
+  const gitattributesWithoutManualSections = `
+path/to/generated.ts linguist-generated=true
+`.trim();
+
+  describe(lockCode, () => {
+    test("should prepend a line-comment docblock with an editable lock", () => {
+      const locked = lockCode(gitattributesBody, true, "", syntax);
+      expect(locked).toContain("# @generated-editable Codelock<<");
+      expect(locked.startsWith("# This file is generated")).toBe(true);
+      expect(locked).toContain(gitattributesBody);
+    });
+
+    test("should prepend a line-comment docblock with an uneditable lock", () => {
+      const locked = lockCode(
+        gitattributesWithoutManualSections,
+        false,
+        "",
+        syntax,
+      );
+      expect(locked).toContain("# @generated Codelock<<");
+      expect(locked).not.toContain("# @generated-editable");
+    });
+
+    test("should interpolate provided customContent as line comments", () => {
+      const locked = lockCode(
+        gitattributesBody,
+        true,
+        "\nTo update: run codegen\n",
+        syntax,
+      );
+      expect(locked).toContain("# To update: run codegen");
+    });
+  });
+
+  describe(getCodelockInfo, () => {
+    test("returns manualSectionsAllowed: true for editable lock", () => {
+      const locked = lockCode(gitattributesBody, true, "", syntax);
+      expect(getCodelockInfo(locked, syntax)).toMatchObject({
+        manualSectionsAllowed: true,
+      });
+    });
+
+    test("returns manualSectionsAllowed: false for uneditable lock", () => {
+      const locked = lockCode(
+        gitattributesWithoutManualSections,
+        false,
+        "",
+        syntax,
+      );
+      expect(getCodelockInfo(locked, syntax)).toMatchObject({
+        manualSectionsAllowed: false,
+      });
+    });
+
+    test("returns undefined if code has no docblock", () => {
+      expect(getCodelockInfo("", syntax)).toBeUndefined();
+      expect(getCodelockInfo(gitattributesBody, syntax)).toBeUndefined();
+    });
+  });
+
+  describe(verifyLock, () => {
+    test("returns true after locking", () => {
+      expect(
+        verifyLock(lockCode(gitattributesBody, true, "", syntax), syntax),
+      ).toBe(true);
+      expect(
+        verifyLock(
+          lockCode(gitattributesWithoutManualSections, false, "", syntax),
+          syntax,
+        ),
+      ).toBe(true);
+    });
+
+    test("returns false if the body is edited outside of manual sections", () => {
+      expect(
+        verifyLock(
+          lockCode(gitattributesBody, true, "", syntax) +
+            "\nextra/file linguist-generated=true\n",
+          syntax,
+        ),
+      ).toBe(false);
+      expect(
+        verifyLock(
+          lockCode(gitattributesWithoutManualSections, false, "", syntax) +
+            "\nextra/file linguist-generated=true\n",
+          syntax,
+        ),
+      ).toBe(false);
+    });
+
+    test("returns true if only the manual section body is edited in an editable lock", () => {
+      const locked = lockCode(gitattributesBody, true, "", syntax);
+      const edited = locked.replace(
+        "# BEGIN MANUAL SECTION manual\n# add custom rules here\n# END MANUAL SECTION",
+        "# BEGIN MANUAL SECTION manual\n# add custom rules here\npath/to/extra lfs\n# END MANUAL SECTION",
+      );
+      expect(verifyLock(edited, syntax)).toBe(true);
+    });
+
+    test("returns false if the manual section body is edited in an uneditable lock", () => {
+      const body = `
+# BEGIN MANUAL SECTION manual
+# END MANUAL SECTION
+
+path/to/generated.ts linguist-generated=true
+`.trim();
+      const locked = lockCode(body, false, "", syntax);
+      const edited = locked.replace(
+        "# BEGIN MANUAL SECTION manual\n# END MANUAL SECTION",
+        "# BEGIN MANUAL SECTION manual\npath/to/extra lfs\n# END MANUAL SECTION",
+      );
+      expect(verifyLock(edited, syntax)).toBe(false);
+    });
+  });
+});

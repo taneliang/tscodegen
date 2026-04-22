@@ -2,15 +2,21 @@ import syncPrettier from "@prettier/sync";
 import { createManualSection } from "./sections/manual";
 import type { ManualSectionMap } from "./types/ManualSectionMap";
 import { createDocblock } from "./sections/docblock";
+import { CommentSyntax, DEFAULT_COMMENT_SYNTAX } from "./types/CommentSyntax";
 
 export class CodeBuilder {
   #gennedCode = "";
   #hasManualSections = false;
 
   readonly #existingManualSections: ManualSectionMap;
+  readonly #commentSyntax: CommentSyntax;
 
-  constructor(manualSections: ManualSectionMap) {
+  constructor(
+    manualSections: ManualSectionMap,
+    commentSyntax: CommentSyntax = DEFAULT_COMMENT_SYNTAX,
+  ) {
     this.#existingManualSections = manualSections;
+    this.#commentSyntax = commentSyntax;
   }
 
   /**
@@ -36,7 +42,7 @@ export class CodeBuilder {
    * @param docblockContent Plain docblock content (i.e. without "*"s at the start of each line)
    */
   addDocblock(docblockContent: string): this {
-    return this.addLine(createDocblock(docblockContent));
+    return this.addLine(createDocblock(docblockContent, this.#commentSyntax));
   }
 
   /**
@@ -51,7 +57,7 @@ export class CodeBuilder {
     blockBuilder: (blockBuilder: CodeBuilder) => CodeBuilder,
   ): this {
     const builtBlockBuilder = blockBuilder(
-      new CodeBuilder(this.#existingManualSections),
+      new CodeBuilder(this.#existingManualSections, this.#commentSyntax),
     );
     this.#hasManualSections =
       this.#hasManualSections || builtBlockBuilder.hasManualSections();
@@ -78,11 +84,13 @@ export class CodeBuilder {
       sectionContent = this.#existingManualSections[sectionKey];
     } else {
       sectionContent = sectionBuilder(
-        new CodeBuilder(this.#existingManualSections),
+        new CodeBuilder(this.#existingManualSections, this.#commentSyntax),
       ).toString();
     }
     this.#hasManualSections = true;
-    return this.addLine(createManualSection(sectionKey, sectionContent));
+    return this.addLine(
+      createManualSection(sectionKey, sectionContent, this.#commentSyntax),
+    );
   }
 
   /**

@@ -242,3 +242,127 @@ function add(a, b) {
     );
   });
 });
+
+describe("line comment syntax", () => {
+  const syntax = { kind: "line", prefix: "# " } as const;
+
+  describe(getFileDocblock, () => {
+    test("should return undefined if code does not start with a prefixed line", () => {
+      expect(getFileDocblock("", syntax)).toBeUndefined();
+      expect(
+        getFileDocblock("path linguist-generated=true\n", syntax),
+      ).toBeUndefined();
+    });
+
+    test("should return docblock lines without prefix", () => {
+      expect(
+        getFileDocblock(
+          `# File docblock
+#
+# More info
+#
+# @generated Codelock<<somehash>>
+
+path/to/file linguist-generated=true
+`,
+          syntax,
+        ),
+      ).toBe(
+        `
+File docblock
+
+More info
+
+@generated Codelock<<somehash>>
+        `.trim(),
+      );
+    });
+  });
+
+  describe(removeFileDocblock, () => {
+    test("should passthrough files that do not start with the prefix", () => {
+      expect(removeFileDocblock("", syntax)).toBe("");
+      const code = "path linguist-generated=true\n";
+      expect(removeFileDocblock(code, syntax)).toBe(code);
+    });
+
+    test("should strip the docblock lines", () => {
+      expect(
+        removeFileDocblock(
+          `# File docblock
+#
+# @generated Codelock<<x>>
+
+path/to/file linguist-generated=true
+`,
+          syntax,
+        ),
+      ).toBe(`
+path/to/file linguist-generated=true
+`);
+    });
+  });
+
+  describe(createDocblock, () => {
+    test("should emit one prefixed line per content line with blank lines as bare prefix", () => {
+      expect(
+        createDocblock(
+          `File docblock
+
+More info
+
+@generated Codelock<<abc>>`,
+          syntax,
+        ),
+      ).toBe(`# File docblock
+#
+# More info
+#
+# @generated Codelock<<abc>>`);
+    });
+  });
+
+  describe(prependFileDocblock, () => {
+    test("should prepend docblock lines before existing code", () => {
+      const result = prependFileDocblock(
+        "path/to/file linguist-generated=true\n",
+        "@generated Codelock<<abc>>",
+        syntax,
+      );
+      expect(result).toBe(`# @generated Codelock<<abc>>
+
+path/to/file linguist-generated=true
+`);
+    });
+  });
+
+  describe("reversibility", () => {
+    const docblockContent = `File docblock
+
+More info
+
+@partially-generated: Codelock<<abc123>>`;
+
+    const code = `
+path/to/generated.ts linguist-generated=true
+`;
+
+    test("prepend -> get should return the same content", () => {
+      expect(
+        getFileDocblock(
+          prependFileDocblock(code, docblockContent, syntax),
+          syntax,
+        ),
+      ).toBe(docblockContent);
+    });
+
+    test("prepend -> remove should return the original code", () => {
+      expect(
+        removeFileDocblock(
+          prependFileDocblock(code, docblockContent, syntax),
+          syntax,
+        ),
+      ).toBe(code);
+    });
+  });
+});
