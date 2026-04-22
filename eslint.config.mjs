@@ -7,7 +7,13 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["dist/**", "coverage/**", "test-reports/**", "node_modules/**"],
+    ignores: [
+      "bin/**",
+      "dist/**",
+      "coverage/**",
+      "test-reports/**",
+      "node_modules/**",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

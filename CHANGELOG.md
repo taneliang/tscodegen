@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `.gitattributes`). The default remains `{ kind: "jsdoc" }`, preserving the
   existing JSDoc/C-style output byte-for-byte.
 - `CommentSyntax` is re-exported from the package root.
+- New `verify-codelock` CLI (`npx -p @elg/tscodegen verify-codelock`). Accepts
+  eslint- / prettier-style glob patterns, auto-detects the comment syntax of
+  each matched file, and exits non-zero if any tscodegen-generated file has
+  been modified outside its manual sections. Files that are not tscodegen
+  output are silently skipped, so the CLI can be pointed at a broad glob like
+  `**/*` without an allowlist. Intended for use in CI and pre-commit hooks,
+  and a replacement for the previously planned ESLint rule (which could not
+  cover non-`.ts` generated files).
+- `detectCommentSyntax` helper and the `codelock` module are re-exported from
+  the package root so consumers can build their own verification tooling on
+  top of them.
 
 ### Changed
 

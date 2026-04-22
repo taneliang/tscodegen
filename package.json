@@ -4,6 +4,16 @@
   "description": "TypeScript string-based code generation tool, with hashed files and manually editable sections",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "verify-codelock": "bin/verify-codelock.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
   "repository": "git@github.com:taneliang/tscodegen.git",
   "author": "E-Liang Tan <eliang@eliangtan.com>",
   "license": "MIT",
@@ -25,7 +35,9 @@
     "prepare": "yarn clean && yarn build"
   },
   "dependencies": {
-    "@prettier/sync": "^0.6.1"
+    "@prettier/sync": "^0.6.1",
+    "picocolors": "^1.1.1",
+    "tinyglobby": "^0.2.16"
   },
   "peerDependencies": {
     "prettier": "3.x"
