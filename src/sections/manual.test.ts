@@ -259,4 +259,100 @@ describe(emptyManualSections, () => {
   });
 });
 
+describe("line comment syntax", () => {
+  const syntax = { kind: "line", prefix: "# " } as const;
+
+  describe(createManualSection, () => {
+    test("should throw if section key is empty or has whitespaces", () => {
+      expect(() => createManualSection("", "CODE", syntax)).toThrow();
+      expect(() => createManualSection("a b", "CODE", syntax)).toThrow();
+    });
+
+    test("should emit line-prefixed begin/end markers", () => {
+      expect(
+        createManualSection("key", "path/to/file -linguist-generated", syntax),
+      ).toBe(`# BEGIN MANUAL SECTION key
+path/to/file -linguist-generated
+# END MANUAL SECTION`);
+    });
+
+    test("should emit empty section without interior content", () => {
+      expect(createManualSection("key", "", syntax)).toBe(
+        `# BEGIN MANUAL SECTION key\n# END MANUAL SECTION`,
+      );
+    });
+  });
+
+  describe(extractManualSections, () => {
+    test("should extract a line-style manual section", () => {
+      expect(
+        extractManualSections(
+          `# BEGIN MANUAL SECTION key
+path/to/custom lfs
+# END MANUAL SECTION
+`,
+          syntax,
+        ),
+      ).toEqual({
+        key: "path/to/custom lfs",
+      });
+    });
+
+    test("should extract multiple line-style manual sections", () => {
+      expect(
+        extractManualSections(
+          `# BEGIN MANUAL SECTION empty
+# END MANUAL SECTION
+
+path/to/generated linguist-generated=true
+
+# BEGIN MANUAL SECTION custom
+path/to/custom lfs
+path/to/another.bin binary
+# END MANUAL SECTION
+`,
+          syntax,
+        ),
+      ).toEqual({
+        empty: "",
+        custom: `path/to/custom lfs
+path/to/another.bin binary`,
+      });
+    });
+  });
+
+  describe(emptyManualSections, () => {
+    test("should empty line-style manual sections", () => {
+      expect(
+        emptyManualSections(
+          `# BEGIN MANUAL SECTION key
+path/to/custom lfs
+# END MANUAL SECTION
+`,
+          syntax,
+        ),
+      ).toBe(`# BEGIN MANUAL SECTION key
+# END MANUAL SECTION
+`);
+    });
+
+    test("should not touch JSDoc-style markers when using line syntax", () => {
+      const code =
+        "/* BEGIN MANUAL SECTION k */\nfoo\n/* END MANUAL SECTION */";
+      expect(emptyManualSections(code, syntax)).toBe(code);
+    });
+  });
+
+  describe("round-trip", () => {
+    test("extract -> re-create yields equivalent body content", () => {
+      const original = `# BEGIN MANUAL SECTION key
+path/to/custom lfs
+# END MANUAL SECTION`;
+      const extracted = extractManualSections(original, syntax);
+      expect(extracted).toEqual({ key: "path/to/custom lfs" });
+      expect(createManualSection("key", extracted.key, syntax)).toBe(original);
+    });
+  });
+});
+
 // TODO: Ensure nuke and create reverse each other

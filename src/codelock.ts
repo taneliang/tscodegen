@@ -5,6 +5,7 @@ import {
   prependFileDocblock,
 } from "./sections/docblock";
 import { emptyManualSections } from "./sections/manual";
+import { CommentSyntax, DEFAULT_COMMENT_SYNTAX } from "./types/CommentSyntax";
 
 interface CodelockInfo {
   hash: string;
@@ -15,10 +16,13 @@ interface CodelockInfo {
  * Get codelock information from a locked source file.
  *
  * @param lockedCode Code in source file, prepended with codelock file docblock.
+ * @param syntax Comment syntax used in the file. Defaults to JSDoc.
  */
-export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
-  // TODO: get docblock, and if it exists, retrieve hash
-  const docblock = getFileDocblock(lockedCode);
+export function getCodelockInfo(
+  lockedCode: string,
+  syntax: CommentSyntax = DEFAULT_COMMENT_SYNTAX,
+): CodelockInfo | undefined {
+  const docblock = getFileDocblock(lockedCode, syntax);
   if (!docblock) {
     return undefined;
   }
@@ -28,7 +32,6 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
     return undefined;
   }
 
-  // Expect codelock info to be on the last line.
   const lockline = docblockLines[docblockLines.length - 1];
 
   const editableMatchGroups =
@@ -59,11 +62,16 @@ export function getCodelockInfo(lockedCode: string): CodelockInfo | undefined {
  * @param code Code to be locked.
  * @param shouldEmptyManualSections Whether manual sections should be emptied.
  * Should = whether the file is allowed to have manual sections.
+ * @param syntax Comment syntax used in the file. Defaults to JSDoc.
  * @returns Lock hash for `code`.
  */
-function computeHash(code: string, shouldEmptyManualSections: boolean): string {
+function computeHash(
+  code: string,
+  shouldEmptyManualSections: boolean,
+  syntax: CommentSyntax,
+): string {
   const hashableCode = (
-    shouldEmptyManualSections ? emptyManualSections(code) : code
+    shouldEmptyManualSections ? emptyManualSections(code, syntax) : code
   ).trim();
   return crypto
     .createHash("shake128", { outputLength: 24 })
@@ -79,14 +87,16 @@ function computeHash(code: string, shouldEmptyManualSections: boolean): string {
  * @param code Code to be locked.
  * @param manualSectionsAllowed Whether generated code can contain manual sections.
  * @param customContent A custom comment to insert into the docblock.
+ * @param syntax Comment syntax used in the file. Defaults to JSDoc.
  * @returns Locked code, i.e. code with prepended codelock file docblock.
  */
 export function lockCode(
   code: string,
   manualSectionsAllowed: boolean,
   customContent = "",
+  syntax: CommentSyntax = DEFAULT_COMMENT_SYNTAX,
 ): string {
-  const hash = computeHash(code, manualSectionsAllowed);
+  const hash = computeHash(code, manualSectionsAllowed, syntax);
 
   let docblockContent;
 
@@ -102,25 +112,30 @@ ${customContent}
 @generated Codelock<<${hash}>>`;
   }
 
-  return prependFileDocblock(code, docblockContent);
+  return prependFileDocblock(code, docblockContent, syntax);
 }
 
 /**
  * Verify that the codelock in the source file is valid.
  *
  * @param lockedCode Locked code to be verified.
+ * @param syntax Comment syntax used in the file. Defaults to JSDoc.
  * @returns `true` if lock is found and verified. `false` otherwise.
  */
-export function verifyLock(lockedCode: string): boolean {
-  const codeblockInfo = getCodelockInfo(lockedCode);
+export function verifyLock(
+  lockedCode: string,
+  syntax: CommentSyntax = DEFAULT_COMMENT_SYNTAX,
+): boolean {
+  const codeblockInfo = getCodelockInfo(lockedCode, syntax);
   if (!codeblockInfo) {
     return false;
   }
   return (
     codeblockInfo.hash ===
     computeHash(
-      removeFileDocblock(lockedCode),
+      removeFileDocblock(lockedCode, syntax),
       codeblockInfo.manualSectionsAllowed,
+      syntax,
     )
   );
 }

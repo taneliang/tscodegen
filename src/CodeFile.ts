@@ -2,23 +2,35 @@ import fs from "fs";
 import { CodeBuilder } from "./CodeBuilder";
 import { verifyLock, lockCode, getCodelockInfo } from "./codelock";
 import { extractManualSections } from "./sections/manual";
+import { CommentSyntax, DEFAULT_COMMENT_SYNTAX } from "./types/CommentSyntax";
+
+export interface CodeFileOptions {
+  /**
+   * Comment syntax used by the file. Defaults to `{ kind: "jsdoc" }`, which
+   * preserves the historical JSDoc/C-style behaviour.
+   */
+  commentSyntax?: CommentSyntax;
+}
 
 /**
  * Represents and manipulates a generated code file.
  */
 export class CodeFile {
   readonly #sourceFilePath: string;
+  readonly #commentSyntax: CommentSyntax;
   #originalFileContents = "";
   #fileContents = "";
   #manualSectionsAllowed: boolean | undefined;
 
-  constructor(sourceFilePath: string) {
+  constructor(sourceFilePath: string, options: CodeFileOptions = {}) {
     this.#sourceFilePath = sourceFilePath;
+    this.#commentSyntax = options.commentSyntax ?? DEFAULT_COMMENT_SYNTAX;
     if (fs.existsSync(sourceFilePath)) {
       this.#originalFileContents = fs.readFileSync(sourceFilePath, "utf-8");
       this.#fileContents = this.#originalFileContents;
       this.#manualSectionsAllowed = getCodelockInfo(
         this.#fileContents,
+        this.#commentSyntax,
       )?.manualSectionsAllowed;
     }
   }
@@ -27,7 +39,7 @@ export class CodeFile {
    * Verifies that the codelock in the generated file is present and valid.
    */
   verify(): boolean {
-    return verifyLock(this.#fileContents);
+    return verifyLock(this.#fileContents, this.#commentSyntax);
   }
 
   /**
@@ -38,7 +50,10 @@ export class CodeFile {
    */
   build(builderBuilder: (builder: CodeBuilder) => CodeBuilder): this {
     const builder = builderBuilder(
-      new CodeBuilder(extractManualSections(this.#fileContents)),
+      new CodeBuilder(
+        extractManualSections(this.#fileContents, this.#commentSyntax),
+        this.#commentSyntax,
+      ),
     );
     this.#fileContents = builder.toString();
     this.#manualSectionsAllowed = builder.hasManualSections();
@@ -59,6 +74,7 @@ export class CodeFile {
       this.#fileContents,
       this.#manualSectionsAllowed ?? false,
       customComment,
+      this.#commentSyntax,
     );
     return this;
   }

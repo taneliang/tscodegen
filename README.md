@@ -115,3 +115,52 @@ class Steam extends Water {
   }
 }
 ```
+
+## Generating non-TypeScript files
+
+By default, `CodeFile` emits JSDoc/C-style docblocks and manual section
+markers. Pass a `commentSyntax` option to target file formats that only
+support line comments (e.g. `.gitattributes` with `#` comments, shell scripts,
+or a `.ts` file where you prefer `//` docblocks):
+
+```typescript
+export type CommentSyntax =
+  | { kind: "jsdoc" } // default — JSDoc/C-style
+  | { kind: "line"; prefix: string }; // e.g. "# " or "// "
+```
+
+Example `.gitattributes` generator:
+
+```typescript
+new CodeFile(".gitattributes", {
+  commentSyntax: { kind: "line", prefix: "# " },
+})
+  .build((b) =>
+    b
+      .addManualSection("manual", (m) => m.addLine("# add custom rules here"))
+      .addLine("path/to/generated.ts linguist-generated=true"),
+  )
+  .lock("\nTo update this file, run: npm run generate:gitattributes\n")
+  .saveToFile();
+```
+
+Sample output:
+
+```
+# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# To update this file, run: npm run generate:gitattributes
+#
+# @generated-editable Codelock<<...>>
+
+# BEGIN MANUAL SECTION manual
+# add custom rules here
+# END MANUAL SECTION
+path/to/generated.ts linguist-generated=true
+```
+
+Everything else works the same: `verify()` detects tampering outside the
+manual sections, `lock()` adds the hash, and `saveToFile()` writes the
+result. Manual-section keys still must be non-empty and whitespace-free.

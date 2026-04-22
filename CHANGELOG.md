@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `CommentSyntax` option plumbed through `CodeFile`, `CodeBuilder`, the
+  docblock helpers, the manual-section helpers, and the codelock helpers.
+  Construct `new CodeFile(path, { commentSyntax: { kind: "line", prefix: "# " } })`
+  to generate files whose only comment form is a line prefix (e.g.
+  `.gitattributes`). The default remains `{ kind: "jsdoc" }`, preserving the
+  existing JSDoc/C-style output byte-for-byte.
+- `CommentSyntax` is re-exported from the package root.
+
 ### Changed
 
 - **Migrated test runner from Jest to Vitest.** Simpler setup, no `ts-jest` transformer required, and faster runs.
