@@ -1,3 +1,4 @@
+import { describe, test, expect } from "vitest";
 import {
   getFileDocblock,
   removeFileDocblock,
@@ -5,7 +6,7 @@ import {
   createDocblock,
 } from "./docblock";
 
-/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectRemoveFileDocblockToPassthrough"] }] */
+/* eslint vitest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectRemoveFileDocblockToPassthrough"] }] */
 
 describe(getFileDocblock, () => {
   test("should return undefined if code does not contain docblock", () => {

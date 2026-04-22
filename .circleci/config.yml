@@ -9,14 +9,14 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - v3-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-            - v3-node-{{ arch }}-{{ .Branch }}-
-            - v3-node-{{ arch }}-
+            - v4-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+            - v4-node-{{ arch }}-{{ .Branch }}-
+            - v4-node-{{ arch }}-
       - run:
           name: Install Dependencies
           command: yarn --frozen-lockfile --cache-folder ~/.cache/yarn --non-interactive
       - save_cache:
-          key: v3-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          key: v4-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
             - node_modules
@@ -30,9 +30,8 @@ jobs:
           name: Test code
           environment:
             NODE_ENV: test
-          command: |
-            set -e
-            yarn test
-            yarn codecov --disable=gcov -f ./coverage/coverage-final.json
+          command: yarn test:coverage
       - store_test_results:
           path: test-reports
+      - store_artifacts:
+          path: coverage

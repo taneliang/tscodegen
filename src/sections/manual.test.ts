@@ -1,10 +1,11 @@
+import { describe, test, expect } from "vitest";
 import {
   createManualSection,
   extractManualSections,
   emptyManualSections,
 } from "./manual";
 
-/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectEmptyManualSectionsToPassthrough"] }] */
+/* eslint vitest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectEmptyManualSectionsToPassthrough"] }] */
 
 describe(createManualSection, () => {
   test("should throw if section key is empty or has whitespaces", () => {
