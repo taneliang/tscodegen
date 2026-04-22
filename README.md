@@ -260,9 +260,7 @@ what generated output looks like for each of these.
   to generate JSON alongside other files, either emit a companion
   metadata file or use JSONC (`{ kind: "line", prefix: "// " }`).
 - **XML / HTML / SVG / Markdown / Vue SFCs / MDX** use `<!-- ... -->`
-  wrapping comments, which is not yet expressible in `CommentSyntax`.
-  This is a planned follow-up (a `{ kind: "wrapped"; open, close }`
-  variant).
+  wrapping comments, which is not expressible in `CommentSyntax`.
 - **Shebangs must be line 1.** `lock()` prepends its docblock, so a
   locked shell script's `#!/usr/bin/env bash` ends up below the
   docblock. For scripts invoked as executables, either prepend the
