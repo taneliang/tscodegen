@@ -164,3 +164,63 @@ path/to/generated.ts linguist-generated=true
 Everything else works the same: `verify()` detects tampering outside the
 manual sections, `lock()` adds the hash, and `saveToFile()` writes the
 result. Manual-section keys still must be non-empty and whitespace-free.
+
+## Generating indentation-sensitive languages (Python, YAML, Makefile, …)
+
+For languages where indentation is syntactic, use `CodeBuilder.indent(amount, fn)`
+to open a nested scope in which every emitted line (including manual-section
+markers and bodies) is prefixed with `amount`. Indent scopes compose
+additively: `indent("  ", b => b.indent("  ", bb => …))` produces four spaces
+of indent.
+
+```typescript
+new CodeFile("compute.py", { commentSyntax: { kind: "line", prefix: "# " } })
+  .build((b) =>
+    b
+      .addLine("def compute(x: int) -> int:")
+      .indent("    ", (fn) =>
+        fn
+          .addLine("result = x + 1")
+          .addManualSection("postprocess", (m) => m.addLine("return result")),
+      ),
+  )
+  .lock()
+  .saveToFile();
+```
+
+Output:
+
+```python
+# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<...>>
+
+def compute(x: int) -> int:
+    result = x + 1
+    # BEGIN MANUAL SECTION postprocess
+    return result
+    # END MANUAL SECTION
+```
+
+Manual sections round-trip cleanly across regenerations: the stored body is
+_semantic_ (column-0 content), and the builder reapplies the ambient indent
+on the way out. So a human who edits the section and adds lines at the
+matching indent:
+
+```python
+    # BEGIN MANUAL SECTION postprocess
+    if result > 100:
+        raise ValueError(result)
+    return result
+    # END MANUAL SECTION
+```
+
+will see their edits preserved verbatim after regeneration, with no
+re-shifting of nested indents (the `if`/`raise` pair keeps its 4-space
+relative indent).
+
+`indent()` accepts any string — typically spaces or `"\t"` — so it also
+covers Makefile recipes, YAML mappings, INI-like formats, or any other
+layout where column position matters.

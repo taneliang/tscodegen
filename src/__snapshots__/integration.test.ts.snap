@@ -1,5 +1,89 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`integration: generated file examples > Makefile with tab-indented recipe and a manual section 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<+Lji5zHg7CuSEpBrzViGEvF1HLfjtRCY>>
+
+.PHONY: build test
+
+build:
+	yarn install
+	yarn build
+	# BEGIN MANUAL SECTION build_postprocess
+	@echo 'customize your build steps here'
+	# END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Python class with manual sections at two indentation levels 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<A+yb9qGMMyY91CxkelWt1ajOEgNmY1Wx>>
+
+from dataclasses import dataclass
+
+# BEGIN MANUAL SECTION custom_imports
+# END MANUAL SECTION
+
+@dataclass
+class User:
+    id: str
+    email: str
+
+    def greet(self) -> str:
+        # BEGIN MANUAL SECTION greet_body
+        return f"Hello, {self.email}!"
+        # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Python module with manual section inside a function body 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# Regenerate with: python -m tools.codegen compute
+#
+# @generated-editable Codelock<<5gA9/0KxrIFK6Nwo83emTUCsOkBZ3TJf>>
+
+from typing import Iterable
+
+DEFAULT_FACTOR = 1.5
+
+def compute(values: Iterable[float]) -> float:
+    """Compute a weighted sum of values."""
+    total = sum(values) * DEFAULT_FACTOR
+    # BEGIN MANUAL SECTION postprocess
+    # Project-specific adjustments go here.
+    if total > 1000:
+        total = round(total, 2)
+    return total
+    # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Python: regenerating preserves an indented manual section when a human adds lines 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<TuyOTuNTIOpFTmT7RxtkrT4R9Z2eJemT>>
+
+def compute(x: int) -> int:
+    result = x + 1
+    # BEGIN MANUAL SECTION postprocess
+    if result > 100:
+        raise ValueError(result)
+    return result
+    # END MANUAL SECTION
+"
+`;
+
 exports[`integration: generated file examples > TypeScript file with a custom lock comment (regeneration instructions) 1`] = `
 "/**
  * This file is generated. Do not modify it manually.
@@ -20,13 +104,39 @@ export interface User {
 "
 `;
 
+exports[`integration: generated file examples > YAML docker-compose fragment with manual section inside a nested mapping 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<Z4GkabYQREpOYIewuR9Yp4bKabytm0ue>>
+
+version: '3.9'
+
+services:
+  web:
+    image: myapp:latest
+    ports:
+      - '8080:8080'
+    # BEGIN MANUAL SECTION web-env
+    environment:
+      - NODE_ENV=production
+      - FEATURE_FLAG=off
+    # END MANUAL SECTION
+  db:
+    image: postgres:15
+    # BEGIN MANUAL SECTION db-env
+    # END MANUAL SECTION
+"
+`;
+
 exports[`integration: generated file examples > editable TypeScript class with manual sections and Prettier formatting 1`] = `
 "/**
  * This file is generated with manually editable sections. Only make
  * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
  * designators.
  *
- * @generated-editable Codelock<<Qe8LJaSFM2Z2LXSgccvK93WyrqNOc3sp>>
+ * @generated-editable Codelock<<WTRrh4ZJAwBLR98AreqT0n/RgCduvnQm>>
  */
 
 import path from "path";
@@ -115,7 +225,7 @@ exports[`integration: generated file examples > regenerating an editable file pr
  * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
  * designators.
  *
- * @generated-editable Codelock<<qtt9w2cPNbqw17quFBDPaw3IcVR/xvVt>>
+ * @generated-editable Codelock<<1K9QcroETq3CFtoqioMQnTNs6Kmz7I24>>
  */
 
 export class Greeter {

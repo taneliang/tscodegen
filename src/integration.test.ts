@@ -253,4 +253,168 @@ describe("integration: generated file examples", () => {
 
     expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
   });
+
+  test("Python module with manual section inside a function body", () => {
+    const filePath = path.join(tmpDir, "compute.py");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("from typing import Iterable")
+          .addLine()
+          .addLine("DEFAULT_FACTOR = 1.5")
+          .addLine()
+          .addLine("def compute(values: Iterable[float]) -> float:")
+          .indent("    ", (fn) =>
+            fn
+              .addLine('"""Compute a weighted sum of values."""')
+              .addLine("total = sum(values) * DEFAULT_FACTOR")
+              .addManualSection("postprocess", (m) =>
+                m
+                  .addLine("# Project-specific adjustments go here.")
+                  .addLine("if total > 1000:")
+                  .indent("    ", (branch) =>
+                    branch.addLine("total = round(total, 2)"),
+                  )
+                  .addLine("return total"),
+              ),
+          ),
+      )
+      .lock("\nRegenerate with: python -m tools.codegen compute\n")
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Python class with manual sections at two indentation levels", () => {
+    const filePath = path.join(tmpDir, "user.py");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("from dataclasses import dataclass")
+          .addLine()
+          .addManualSection("custom_imports", (m) => m)
+          .addLine()
+          .addLine("@dataclass")
+          .addLine("class User:")
+          .indent("    ", (cls) =>
+            cls
+              .addLine("id: str")
+              .addLine("email: str")
+              .addLine()
+              .addLine("def greet(self) -> str:")
+              .indent("    ", (fn) =>
+                fn.addManualSection("greet_body", (m) =>
+                  m.addLine('return f"Hello, {self.email}!"'),
+                ),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Python: regenerating preserves an indented manual section when a human adds lines", () => {
+    const filePath = path.join(tmpDir, "compute.py");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    const writeInitial = () =>
+      new CodeFile(filePath, { commentSyntax: syntax })
+        .build((b) =>
+          b
+            .addLine("def compute(x: int) -> int:")
+            .indent("    ", (fn) =>
+              fn
+                .addLine("result = x + 1")
+                .addManualSection("postprocess", (m) =>
+                  m.addLine("return result"),
+                ),
+            ),
+        )
+        .lock()
+        .saveToFile();
+
+    writeInitial();
+
+    // Human edits inside the manual section, matching the Python indent.
+    const initial = fs.readFileSync(filePath, "utf-8");
+    const edited = initial.replace(
+      "    return result",
+      "    if result > 100:\n        raise ValueError(result)\n    return result",
+    );
+    fs.writeFileSync(filePath, edited, "utf-8");
+
+    // Regenerate with the same builder.
+    writeInitial();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("YAML docker-compose fragment with manual section inside a nested mapping", () => {
+    const filePath = path.join(tmpDir, "docker-compose.yml");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("version: '3.9'")
+          .addLine()
+          .addLine("services:")
+          .indent("  ", (services) =>
+            services
+              .addLine("web:")
+              .indent("  ", (web) =>
+                web
+                  .addLine("image: myapp:latest")
+                  .addLine("ports:")
+                  .indent("  ", (ports) => ports.addLine("- '8080:8080'"))
+                  .addManualSection("web-env", (m) =>
+                    m
+                      .addLine("environment:")
+                      .indent("  ", (env) =>
+                        env
+                          .addLine("- NODE_ENV=production")
+                          .addLine("- FEATURE_FLAG=off"),
+                      ),
+                  ),
+              )
+              .addLine("db:")
+              .indent("  ", (db) =>
+                db
+                  .addLine("image: postgres:15")
+                  .addManualSection("db-env", (m) => m),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Makefile with tab-indented recipe and a manual section", () => {
+    const filePath = path.join(tmpDir, "Makefile");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine(".PHONY: build test")
+          .addLine()
+          .addLine("build:")
+          .indent("\t", (recipe) =>
+            recipe
+              .addLine("yarn install")
+              .addLine("yarn build")
+              .addManualSection("build_postprocess", (m) =>
+                m.addLine("@echo 'customize your build steps here'"),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
 });
