@@ -1,0 +1,147 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`integration: generated file examples > TypeScript file with a custom lock comment (regeneration instructions) 1`] = `
+"/**
+ * This file is generated. Do not modify it manually.
+ *
+ * Regenerate this file by running:
+ * \`npx gentgen generate src/schemas/UserSchema.ts\`
+ *
+ * @generated Codelock<<X9NNKj799cJAuIBLqoyfYgmkVybzMNie>>
+ */
+
+/**
+ * User schema, generated from the canonical model.
+ */
+export interface User {
+  id: string;
+  email: string;
+}
+"
+`;
+
+exports[`integration: generated file examples > editable TypeScript class with manual sections and Prettier formatting 1`] = `
+"/**
+ * This file is generated with manually editable sections. Only make
+ * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+ * designators.
+ *
+ * @generated-editable Codelock<<Qe8LJaSFM2Z2LXSgccvK93WyrqNOc3sp>>
+ */
+
+import path from "path";
+import fs from "fs";
+
+/* BEGIN MANUAL SECTION custom_imports */
+/* END MANUAL SECTION */
+
+class Steam extends Water {
+  constructor() {
+    this.boil();
+  }
+
+  boil() {
+    /* BEGIN MANUAL SECTION boil_body */
+    this.temp = 100;
+    /* END MANUAL SECTION */
+  }
+}
+"
+`;
+
+exports[`integration: generated file examples > line syntax: .gitattributes with editable manual section 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# To update this file, run: npm run generate:gitattributes
+#
+# @generated-editable Codelock<<YLmBD+Buu/NOwEVBoHTsON2B3jCytIIX>>
+
+# BEGIN MANUAL SECTION manual
+# add custom rules here
+# END MANUAL SECTION
+path/to/generated.ts linguist-generated=true
+**/*.snap linguist-generated=true
+"
+`;
+
+exports[`integration: generated file examples > line syntax: TypeScript file with '// ' prefix and an editable manual section 1`] = `
+"// This file is generated with manually editable sections. Only make
+// modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+// designators.
+//
+// @generated-editable Codelock<<V9HOyNbXUHF6t59SGPusmYt8V12VFNcp>>
+
+export const apiBaseUrl = 'https://api.example.com';
+
+// BEGIN MANUAL SECTION overrides
+// Override config here if needed.
+// END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > line syntax: regenerating preserves manual section content 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<ykQLh5QxmvotySsDJPMDYkVcee1Yxnzm>>
+
+# BEGIN MANUAL SECTION manual
+# add custom rules here
+my/secret/lockfile.json linguist-vendored
+# END MANUAL SECTION
+path/to/generated.ts linguist-generated=true
+"
+`;
+
+exports[`integration: generated file examples > line syntax: uneditable shell script with '# ' prefix 1`] = `
+"# This file is generated. Do not modify it manually.
+#
+# @generated Codelock<<FbijbkpZI2CDRh/FrJ7DTp0D7p5ddHJD>>
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo 'Deploying version 1.2.3'
+./scripts/deploy.sh --version 1.2.3
+"
+`;
+
+exports[`integration: generated file examples > regenerating an editable file preserves existing manual section content 1`] = `
+"/**
+ * This file is generated with manually editable sections. Only make
+ * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+ * designators.
+ *
+ * @generated-editable Codelock<<qtt9w2cPNbqw17quFBDPaw3IcVR/xvVt>>
+ */
+
+export class Greeter {
+  greet(name: string) {
+    /* BEGIN MANUAL SECTION greet_body */
+    if (name.length === 0) {
+      return "Hello, stranger!";
+    }
+    return \`Hello, \${name.toUpperCase()}!\`;
+    /* END MANUAL SECTION */
+  }
+}
+"
+`;
+
+exports[`integration: generated file examples > uneditable TypeScript constants file 1`] = `
+"/**
+ * This file is generated. Do not modify it manually.
+ *
+ * @generated Codelock<<Lh0qMi/ND1WXJFr3lHm5t0at8+qqMqBr>>
+ */
+
+export const Colors = {
+  RED: "#ff0000",
+  GREEN: "#00ff00",
+  BLUE: "#0000ff",
+} as const;
+"
+`;
