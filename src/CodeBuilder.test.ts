@@ -262,6 +262,20 @@ in the block.
         removeDir(tempDir);
       }
     });
+
+    test("should re-synchronize the at-line-start flag after formatting", () => {
+      // Regression test: before the fix, calling format() on a builder
+      // with ambient indent left a stale atLineStart from the pre-format
+      // state. A subsequent addLine() then skipped or misapplied the
+      // ambient indent depending on whether the last pre-format write
+      // ended with a newline.
+      const output = new CodeBuilder({}, { kind: "jsdoc" }, "  ")
+        .add("const x = 1;") // trailing char is ';', atLineStart = false
+        .format() // prettier normalizes to "const x = 1;\n"
+        .addLine("const y = 2;") // should land indented under ambient
+        .toString();
+      expect(output).toBe("const x = 1;\n  const y = 2;\n");
+    });
   });
 
   test("should work", () => {

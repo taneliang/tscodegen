@@ -203,6 +203,12 @@ export class CodeBuilder {
       ...options,
       parser: "typescript",
     });
+    // Resynchronize the line-start flag with the newly-installed code so
+    // subsequent add()/addLine() calls apply the ambient indent correctly.
+    // Prettier's output ends with "\n" when non-empty; treat empty output
+    // as also being at line start.
+    this.#atLineStart =
+      this.#gennedCode.length === 0 || this.#gennedCode.endsWith("\n");
     return this;
   }
 
