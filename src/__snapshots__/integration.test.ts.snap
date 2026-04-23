@@ -1,5 +1,179 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`integration: generated file examples > Makefile with tab-indented recipe and a manual section 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<+Lji5zHg7CuSEpBrzViGEvF1HLfjtRCY>>
+
+.PHONY: build test
+
+build:
+	yarn install
+	yarn build
+	# BEGIN MANUAL SECTION build_postprocess
+	@echo 'customize your build steps here'
+	# END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Python class with manual sections at two indentation levels 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<A+yb9qGMMyY91CxkelWt1ajOEgNmY1Wx>>
+
+from dataclasses import dataclass
+
+# BEGIN MANUAL SECTION custom_imports
+# END MANUAL SECTION
+
+@dataclass
+class User:
+    id: str
+    email: str
+
+    def greet(self) -> str:
+        # BEGIN MANUAL SECTION greet_body
+        return f"Hello, {self.email}!"
+        # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Python module with manual section inside a function body 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# Regenerate with: python -m tools.codegen compute
+#
+# @generated-editable Codelock<<5gA9/0KxrIFK6Nwo83emTUCsOkBZ3TJf>>
+
+from typing import Iterable
+
+DEFAULT_FACTOR = 1.5
+
+def compute(values: Iterable[float]) -> float:
+    """Compute a weighted sum of values."""
+    total = sum(values) * DEFAULT_FACTOR
+    # BEGIN MANUAL SECTION postprocess
+    # Project-specific adjustments go here.
+    if total > 1000:
+        total = round(total, 2)
+    return total
+    # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Python: regenerating preserves an indented manual section when a human adds lines 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<TuyOTuNTIOpFTmT7RxtkrT4R9Z2eJemT>>
+
+def compute(x: int) -> int:
+    result = x + 1
+    # BEGIN MANUAL SECTION postprocess
+    if result > 100:
+        raise ValueError(result)
+    return result
+    # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > SQL schema with manual section inside a CREATE TABLE column list 1`] = `
+"-- This file is generated with manually editable sections. Only make
+-- modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+-- designators.
+--
+-- @generated-editable Codelock<<qmhkvK+QHgb0QcvyyZE0Yn3hWQMMqfrd>>
+
+CREATE TABLE users (
+  id          UUID PRIMARY KEY,
+  email       TEXT NOT NULL,
+  created_at  TIMESTAMP DEFAULT now(),
+  -- BEGIN MANUAL SECTION extra_columns
+  -- Project-specific columns go below. They survive
+  -- regeneration.
+  team_id     INTEGER REFERENCES teams(id),
+  last_login  TIMESTAMP
+  -- END MANUAL SECTION
+);
+
+CREATE INDEX users_email_idx ON users (email);
+"
+`;
+
+exports[`integration: generated file examples > Terraform main.tf with manual sections inside nested HCL blocks 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# Regenerate with: npm run generate:terraform
+#
+# @generated-editable Codelock<<vZC7TYQw86Q7jvlILXkvO6Pxdwio09Xz>>
+
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+resource "aws_s3_bucket" "logs" {
+  bucket = "acme-app-logs-\${var.environment}"
+
+  lifecycle_rule {
+    enabled = true
+    expiration {
+      days = 90
+    }
+  }
+
+  tags = {
+    Name        = "acme-app-logs"
+    Environment = var.environment
+    # BEGIN MANUAL SECTION extra_tags
+    # Add team-specific tags below; they survive regeneration.
+    Team        = "platform"
+    CostCenter  = "eng-infra-42"
+    # END MANUAL SECTION
+  }
+}
+
+# BEGIN MANUAL SECTION extra_resources
+# Define additional resources here. They are preserved across regenerations.
+# END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > Terraform: regenerating preserves an indented manual section when a human adds tags 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<pX2rGIO3dBwyOz2BOHKTmuZu30II8x6r>>
+
+resource "aws_s3_bucket" "logs" {
+  bucket = "logs"
+  tags = {
+    Name = "logs"
+    # BEGIN MANUAL SECTION extra_tags
+    Team        = "platform"
+    CostCenter  = "eng-infra-42"
+    ManagedBy   = terraform.workspace
+    # END MANUAL SECTION
+  }
+}
+"
+`;
+
 exports[`integration: generated file examples > TypeScript file with a custom lock comment (regeneration instructions) 1`] = `
 "/**
  * This file is generated. Do not modify it manually.
@@ -20,13 +194,39 @@ export interface User {
 "
 `;
 
+exports[`integration: generated file examples > YAML docker-compose fragment with manual section inside a nested mapping 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<Z4GkabYQREpOYIewuR9Yp4bKabytm0ue>>
+
+version: '3.9'
+
+services:
+  web:
+    image: myapp:latest
+    ports:
+      - '8080:8080'
+    # BEGIN MANUAL SECTION web-env
+    environment:
+      - NODE_ENV=production
+      - FEATURE_FLAG=off
+    # END MANUAL SECTION
+  db:
+    image: postgres:15
+    # BEGIN MANUAL SECTION db-env
+    # END MANUAL SECTION
+"
+`;
+
 exports[`integration: generated file examples > editable TypeScript class with manual sections and Prettier formatting 1`] = `
 "/**
  * This file is generated with manually editable sections. Only make
  * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
  * designators.
  *
- * @generated-editable Codelock<<Qe8LJaSFM2Z2LXSgccvK93WyrqNOc3sp>>
+ * @generated-editable Codelock<<WTRrh4ZJAwBLR98AreqT0n/RgCduvnQm>>
  */
 
 import path from "path";
@@ -115,7 +315,7 @@ exports[`integration: generated file examples > regenerating an editable file pr
  * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
  * designators.
  *
- * @generated-editable Codelock<<qtt9w2cPNbqw17quFBDPaw3IcVR/xvVt>>
+ * @generated-editable Codelock<<1K9QcroETq3CFtoqioMQnTNs6Kmz7I24>>
  */
 
 export class Greeter {
@@ -128,6 +328,38 @@ export class Greeter {
     /* END MANUAL SECTION */
   }
 }
+"
+`;
+
+exports[`integration: generated file examples > regenerating at a deeper indent shifts the whole manual section (markers + body + nested indents) 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<x+SkYLxt2TlWWx2YuUOKDCv6QkCSZj5c>>
+
+class Bar:
+    def foo(self):
+        x = 1
+        # BEGIN MANUAL SECTION body
+        if x > 0:
+            return x
+        return 0
+        # END MANUAL SECTION
+"
+`;
+
+exports[`integration: generated file examples > regenerating at a shallower indent un-shifts the whole manual section 1`] = `
+"# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<CW9HKidpI5Q3IhPtbAwboG7aeJzyxbqD>>
+
+# BEGIN MANUAL SECTION body
+a = 1
+b = 2
+# END MANUAL SECTION
 "
 `;
 

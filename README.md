@@ -164,3 +164,105 @@ path/to/generated.ts linguist-generated=true
 Everything else works the same: `verify()` detects tampering outside the
 manual sections, `lock()` adds the hash, and `saveToFile()` writes the
 result. Manual-section keys still must be non-empty and whitespace-free.
+
+## Generating indentation-sensitive languages (Python, YAML, Makefile, …)
+
+For languages where indentation is syntactic, use `CodeBuilder.indent(amount, fn)`
+to open a nested scope in which every emitted line (including manual-section
+markers and bodies) is prefixed with `amount`. Indent scopes compose
+additively: `indent("  ", b => b.indent("  ", bb => …))` produces four spaces
+of indent.
+
+```typescript
+new CodeFile("compute.py", { commentSyntax: { kind: "line", prefix: "# " } })
+  .build((b) =>
+    b
+      .addLine("def compute(x: int) -> int:")
+      .indent("    ", (fn) =>
+        fn
+          .addLine("result = x + 1")
+          .addManualSection("postprocess", (m) => m.addLine("return result")),
+      ),
+  )
+  .lock()
+  .saveToFile();
+```
+
+Output:
+
+```python
+# This file is generated with manually editable sections. Only make
+# modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
+# designators.
+#
+# @generated-editable Codelock<<...>>
+
+def compute(x: int) -> int:
+    result = x + 1
+    # BEGIN MANUAL SECTION postprocess
+    return result
+    # END MANUAL SECTION
+```
+
+Manual sections round-trip cleanly across regenerations: the stored body is
+_semantic_ (column-0 content), and the builder reapplies the ambient indent
+on the way out. So a human who edits the section and adds lines at the
+matching indent:
+
+```python
+    # BEGIN MANUAL SECTION postprocess
+    if result > 100:
+        raise ValueError(result)
+    return result
+    # END MANUAL SECTION
+```
+
+will see their edits preserved verbatim after regeneration, with no
+re-shifting of nested indents (the `if`/`raise` pair keeps its 4-space
+relative indent).
+
+`indent()` accepts any string — typically spaces or `"\t"` — so it also
+covers Makefile recipes, YAML mappings, Terraform/HCL blocks, INI-like
+formats, or any other layout where column position matters.
+
+### Supported file types by `CommentSyntax`
+
+tscodegen treats the comment prefix as an opaque string, so any
+language whose comments fit one of the supported shapes works out of
+the box. The table below lists the configurations for common target
+file types.
+
+| File type                           | `CommentSyntax`                               |
+| ----------------------------------- | --------------------------------------------- |
+| TypeScript / JavaScript / TSX / JSX | `{ kind: "jsdoc" }` (default)                 |
+| Go, Rust, Swift, Kotlin, Java       | `{ kind: "jsdoc" }`                           |
+| C, C++                              | `{ kind: "jsdoc" }`                           |
+| CSS / SCSS / LESS                   | `{ kind: "jsdoc" }`                           |
+| Protobuf                            | `{ kind: "jsdoc" }`                           |
+| TS/JS (line-comment preferred)      | `{ kind: "line", prefix: "// " }`             |
+| Python, Ruby                        | `{ kind: "line", prefix: "# " }`              |
+| Shell / Bash / zsh                  | `{ kind: "line", prefix: "# " }`              |
+| YAML, TOML                          | `{ kind: "line", prefix: "# " }`              |
+| Dockerfile, `.env`                  | `{ kind: "line", prefix: "# " }`              |
+| Terraform / HCL, GraphQL            | `{ kind: "line", prefix: "# " }`              |
+| Makefile                            | `{ kind: "line", prefix: "# " }` + tab indent |
+| `.gitattributes`, `.gitignore`      | `{ kind: "line", prefix: "# " }`              |
+| nginx.conf, systemd unit            | `{ kind: "line", prefix: "# " }`              |
+| SQL                                 | `{ kind: "line", prefix: "-- " }`             |
+
+The Python/YAML/Terraform/Makefile/SQL snapshots in
+`src/__snapshots__/integration.test.ts.snap` are a living catalogue of
+what generated output looks like for each of these.
+
+### Known limitations
+
+- **JSON has no comment syntax**, so it cannot be locked. If you need
+  to generate JSON alongside other files, either emit a companion
+  metadata file or use JSONC (`{ kind: "line", prefix: "// " }`).
+- **XML / HTML / SVG / Markdown / Vue SFCs / MDX** use `<!-- ... -->`
+  wrapping comments, which is not expressible in `CommentSyntax`.
+- **Shebangs must be line 1.** `lock()` prepends its docblock, so a
+  locked shell script's `#!/usr/bin/env bash` ends up below the
+  docblock. For scripts invoked as executables, either prepend the
+  shebang yourself after locking or invoke them via the interpreter
+  directly.

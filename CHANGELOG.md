@@ -16,16 +16,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `.gitattributes`). The default remains `{ kind: "jsdoc" }`, preserving the
   existing JSDoc/C-style output byte-for-byte.
 - `CommentSyntax` is re-exported from the package root.
+- `CodeBuilder.indent(amount, fn)` for generating indentation-sensitive
+  languages (Python, YAML, Terraform, Makefile, …). Opens a nested
+  builder scope whose ambient indent is the current indent plus
+  `amount`; every emitted line — including manual-section markers and
+  bodies — is prefixed accordingly. Indent scopes compose additively
+  and accept any string (spaces, tabs, mixed).
+- `createManualSection` accepts a new optional `indent` argument for
+  callers who use the helper directly.
+- `CodeBuilder` constructor accepts an optional third `indent` argument
+  (defaults to `""`).
 
 ### Changed
 
-- **Migrated test runner from Jest to Vitest.** Simpler setup, no `ts-jest` transformer required, and faster runs.
-- Bumped dev dependencies to latest: TypeScript 6.x, ESLint 10.x, `typescript-eslint` 8.x, Prettier 3.8.x, Vitest 4.x, and related tooling.
-- ESLint flat config simplified to use `typescript-eslint`'s config helpers and `@vitest/eslint-plugin` in place of `eslint-plugin-jest`.
-- TypeScript target updated from ES2018 to ES2022 to match the current supported Node versions.
-- Dropped the deprecated `codecov` npm uploader; CI now uploads coverage to Codecov via the official `codecov/codecov@5` CircleCI orb, using the `lcov.info` produced by Vitest's v8 coverage.
+- Manual sections are now stored as semantic (column-0) content.
+  `extractManualSections` auto-detects each section's indent from the
+  BEGIN marker and dedents every body line uniformly, so round-tripping
+  works cleanly regardless of where a section lives in the file. The
+  previous behaviour was subtly buggy: `.trim()` on the whole captured
+  body only dedented line 1, and multi-line bodies kept the original
+  indent on lines 2+.
+- Migrated test runner from Jest to Vitest. Simpler setup, no `ts-jest`
+  transformer required, and faster runs.
+- Bumped dev dependencies to latest: TypeScript 6.x, ESLint 10.x,
+  `typescript-eslint` 8.x, Prettier 3.8.x, Vitest 4.x, and related
+  tooling.
+- ESLint flat config simplified to use `typescript-eslint`'s config
+  helpers and `@vitest/eslint-plugin` in place of `eslint-plugin-jest`.
+- TypeScript target updated from ES2018 to ES2022 to match the current
+  supported Node versions.
+- Dropped the deprecated `codecov` npm uploader; CI now uploads coverage
+  to Codecov via the official `codecov/codecov@5` CircleCI orb, using
+  the `lcov.info` produced by Vitest's v8 coverage.
 - Dropped `@eslint/eslintrc` compat layer.
 - Raised minimum Node.js version to `>=20.18.0`.
+
+### Breaking
+
+- Codelock hashes produced prior to this release are no longer valid.
+  The normalized form consumed by `emptyManualSections` — which is the
+  input to the codelock hash — now preserves the BEGIN marker's indent,
+  and `createManualSection`'s output for multi-line bodies is now
+  correctly dedented rather than partially dedented. Files locked by
+  earlier versions will fail `verify()` and need to be regenerated.
+- Manual-section markers must each appear on their own line. The
+  historical regex also matched the pathological single-line form
+  `/* BEGIN MANUAL SECTION k */body/* END MANUAL SECTION */`, which is
+  never emitted by `createManualSection` and is now ignored.
 
 ## [0.4.0] - 2026-03-02
 

@@ -7,7 +7,7 @@ exports[`lockCode > editable files > should interpolate provided content 1`] = `
  * designators.
  * CUSTOM LINE 1
  * CUSTOM LINE 2
- * @generated-editable Codelock<<VZ4MZwQh3kgACluPomV+XBbiKqmafUfq>>
+ * @generated-editable Codelock<<SZOHkis46G+poAie7wLZwJjvgG/PEyVm>>
  */
 
 interface CodelockInfo {
@@ -24,7 +24,7 @@ exports[`lockCode > editable files > should prepend file docblock with consisten
  * modifications between BEGIN MANUAL SECTION and END MANUAL SECTION
  * designators.
  *
- * @generated-editable Codelock<<VZ4MZwQh3kgACluPomV+XBbiKqmafUfq>>
+ * @generated-editable Codelock<<SZOHkis46G+poAie7wLZwJjvgG/PEyVm>>
  */
 
 interface CodelockInfo {

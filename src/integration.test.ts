@@ -253,4 +253,392 @@ describe("integration: generated file examples", () => {
 
     expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
   });
+
+  test("Python module with manual section inside a function body", () => {
+    const filePath = path.join(tmpDir, "compute.py");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("from typing import Iterable")
+          .addLine()
+          .addLine("DEFAULT_FACTOR = 1.5")
+          .addLine()
+          .addLine("def compute(values: Iterable[float]) -> float:")
+          .indent("    ", (fn) =>
+            fn
+              .addLine('"""Compute a weighted sum of values."""')
+              .addLine("total = sum(values) * DEFAULT_FACTOR")
+              .addManualSection("postprocess", (m) =>
+                m
+                  .addLine("# Project-specific adjustments go here.")
+                  .addLine("if total > 1000:")
+                  .indent("    ", (branch) =>
+                    branch.addLine("total = round(total, 2)"),
+                  )
+                  .addLine("return total"),
+              ),
+          ),
+      )
+      .lock("\nRegenerate with: python -m tools.codegen compute\n")
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Python class with manual sections at two indentation levels", () => {
+    const filePath = path.join(tmpDir, "user.py");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("from dataclasses import dataclass")
+          .addLine()
+          .addManualSection("custom_imports", (m) => m)
+          .addLine()
+          .addLine("@dataclass")
+          .addLine("class User:")
+          .indent("    ", (cls) =>
+            cls
+              .addLine("id: str")
+              .addLine("email: str")
+              .addLine()
+              .addLine("def greet(self) -> str:")
+              .indent("    ", (fn) =>
+                fn.addManualSection("greet_body", (m) =>
+                  m.addLine('return f"Hello, {self.email}!"'),
+                ),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Python: regenerating preserves an indented manual section when a human adds lines", () => {
+    const filePath = path.join(tmpDir, "compute.py");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    const writeInitial = () =>
+      new CodeFile(filePath, { commentSyntax: syntax })
+        .build((b) =>
+          b
+            .addLine("def compute(x: int) -> int:")
+            .indent("    ", (fn) =>
+              fn
+                .addLine("result = x + 1")
+                .addManualSection("postprocess", (m) =>
+                  m.addLine("return result"),
+                ),
+            ),
+        )
+        .lock()
+        .saveToFile();
+
+    writeInitial();
+
+    // Human edits inside the manual section, matching the Python indent.
+    const initial = fs.readFileSync(filePath, "utf-8");
+    const edited = initial.replace(
+      "    return result",
+      "    if result > 100:\n        raise ValueError(result)\n    return result",
+    );
+    fs.writeFileSync(filePath, edited, "utf-8");
+
+    // Regenerate with the same builder.
+    writeInitial();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("YAML docker-compose fragment with manual section inside a nested mapping", () => {
+    const filePath = path.join(tmpDir, "docker-compose.yml");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("version: '3.9'")
+          .addLine()
+          .addLine("services:")
+          .indent("  ", (services) =>
+            services
+              .addLine("web:")
+              .indent("  ", (web) =>
+                web
+                  .addLine("image: myapp:latest")
+                  .addLine("ports:")
+                  .indent("  ", (ports) => ports.addLine("- '8080:8080'"))
+                  .addManualSection("web-env", (m) =>
+                    m
+                      .addLine("environment:")
+                      .indent("  ", (env) =>
+                        env
+                          .addLine("- NODE_ENV=production")
+                          .addLine("- FEATURE_FLAG=off"),
+                      ),
+                  ),
+              )
+              .addLine("db:")
+              .indent("  ", (db) =>
+                db
+                  .addLine("image: postgres:15")
+                  .addManualSection("db-env", (m) => m),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Terraform main.tf with manual sections inside nested HCL blocks", () => {
+    const filePath = path.join(tmpDir, "main.tf");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine("terraform {")
+          .indent("  ", (tf) =>
+            tf
+              .addLine('required_version = ">= 1.6.0"')
+              .addLine("required_providers {")
+              .indent("  ", (rp) =>
+                rp
+                  .addLine("aws = {")
+                  .indent("  ", (aws) =>
+                    aws
+                      .addLine('source  = "hashicorp/aws"')
+                      .addLine('version = "~> 5.0"'),
+                  )
+                  .addLine("}"),
+              )
+              .addLine("}"),
+          )
+          .addLine("}")
+          .addLine()
+          .addLine('resource "aws_s3_bucket" "logs" {')
+          .indent("  ", (res) =>
+            res
+              .addLine('bucket = "acme-app-logs-${var.environment}"')
+              .addLine()
+              .addLine("lifecycle_rule {")
+              .indent("  ", (lc) =>
+                lc
+                  .addLine("enabled = true")
+                  .addLine("expiration {")
+                  .indent("  ", (exp) => exp.addLine("days = 90"))
+                  .addLine("}"),
+              )
+              .addLine("}")
+              .addLine()
+              .addLine("tags = {")
+              .indent("  ", (tags) =>
+                tags
+                  .addLine('Name        = "acme-app-logs"')
+                  .addLine("Environment = var.environment")
+                  .addManualSection("extra_tags", (m) =>
+                    m
+                      .addLine(
+                        "# Add team-specific tags below; they survive regeneration.",
+                      )
+                      .addLine('Team        = "platform"')
+                      .addLine('CostCenter  = "eng-infra-42"'),
+                  ),
+              )
+              .addLine("}"),
+          )
+          .addLine("}")
+          .addLine()
+          .addManualSection("extra_resources", (m) =>
+            m.addLine(
+              "# Define additional resources here. They are preserved across regenerations.",
+            ),
+          ),
+      )
+      .lock("\nRegenerate with: npm run generate:terraform\n")
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Terraform: regenerating preserves an indented manual section when a human adds tags", () => {
+    const filePath = path.join(tmpDir, "main.tf");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    const writeInitial = () =>
+      new CodeFile(filePath, { commentSyntax: syntax })
+        .build((b) =>
+          b
+            .addLine('resource "aws_s3_bucket" "logs" {')
+            .indent("  ", (res) =>
+              res
+                .addLine('bucket = "logs"')
+                .addLine("tags = {")
+                .indent("  ", (tags) =>
+                  tags
+                    .addLine('Name = "logs"')
+                    .addManualSection("extra_tags", (m) =>
+                      m.addLine('Team = "platform"'),
+                    ),
+                )
+                .addLine("}"),
+            )
+            .addLine("}"),
+        )
+        .lock()
+        .saveToFile();
+
+    writeInitial();
+
+    // Human edits inside the manual section at the matching (4-space) indent.
+    const initial = fs.readFileSync(filePath, "utf-8");
+    const edited = initial.replace(
+      '    Team = "platform"',
+      [
+        '    Team        = "platform"',
+        '    CostCenter  = "eng-infra-42"',
+        "    ManagedBy   = terraform.workspace",
+      ].join("\n"),
+    );
+    fs.writeFileSync(filePath, edited, "utf-8");
+
+    // Regenerate with the same builder.
+    writeInitial();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("regenerating at a deeper indent shifts the whole manual section (markers + body + nested indents)", () => {
+    const filePath = path.join(tmpDir, "module.py");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    // v1: the section lives inside a top-level function (1 indent level).
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b.addLine("def foo():").indent("    ", (fn) =>
+          fn.addLine("x = 1").addManualSection("body", (m) =>
+            m
+              .addLine("if x > 0:")
+              .indent("    ", (branch) => branch.addLine("return x"))
+              .addLine("return 0"),
+          ),
+        ),
+      )
+      .lock()
+      .saveToFile();
+
+    // v2: the generator now wraps that function in a class, moving the
+    // section to 2 indent levels. The whole section — BEGIN marker, body
+    // lines, the relative indent on `return x`, and END marker — should
+    // shift uniformly to the new depth.
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b.addLine("class Bar:").indent("    ", (cls) =>
+          cls.addLine("def foo(self):").indent("    ", (fn) =>
+            fn.addLine("x = 1").addManualSection("body", (m) =>
+              m
+                .addLine("if x > 0:")
+                .indent("    ", (branch) => branch.addLine("return x"))
+                .addLine("return 0"),
+            ),
+          ),
+        ),
+      )
+      .lock()
+      .saveToFile();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("regenerating at a shallower indent un-shifts the whole manual section", () => {
+    const filePath = path.join(tmpDir, "module.py");
+    const syntax = { kind: "line" as const, prefix: "# " };
+
+    // v1: section is 2 levels deep (inside a method inside a class).
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b
+          .addLine("class Outer:")
+          .indent("    ", (cls) =>
+            cls
+              .addLine("def method(self):")
+              .indent("    ", (fn) =>
+                fn.addManualSection("body", (m) =>
+                  m.addLine("a = 1").addLine("b = 2"),
+                ),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+
+    // v2: the generator has been changed to emit the section at the top
+    // level; the section should come out at column 0, with no stale indent
+    // left behind on the markers or body.
+    new CodeFile(filePath, { commentSyntax: syntax })
+      .build((b) =>
+        b.addManualSection("body", (m) => m.addLine("a = 1").addLine("b = 2")),
+      )
+      .lock()
+      .saveToFile();
+
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("SQL schema with manual section inside a CREATE TABLE column list", () => {
+    const filePath = path.join(tmpDir, "users.sql");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "-- " },
+    })
+      .build((b) =>
+        b
+          .addLine("CREATE TABLE users (")
+          .indent("  ", (cols) =>
+            cols
+              .addLine("id          UUID PRIMARY KEY,")
+              .addLine("email       TEXT NOT NULL,")
+              .addLine("created_at  TIMESTAMP DEFAULT now(),")
+              .addManualSection("extra_columns", (m) =>
+                m
+                  .addLine("-- Project-specific columns go below. They survive")
+                  .addLine("-- regeneration.")
+                  .addLine("team_id     INTEGER REFERENCES teams(id),")
+                  .addLine("last_login  TIMESTAMP"),
+              ),
+          )
+          .addLine(");")
+          .addLine()
+          .addLine("CREATE INDEX users_email_idx ON users (email);"),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
+
+  test("Makefile with tab-indented recipe and a manual section", () => {
+    const filePath = path.join(tmpDir, "Makefile");
+    new CodeFile(filePath, {
+      commentSyntax: { kind: "line", prefix: "# " },
+    })
+      .build((b) =>
+        b
+          .addLine(".PHONY: build test")
+          .addLine()
+          .addLine("build:")
+          .indent("\t", (recipe) =>
+            recipe
+              .addLine("yarn install")
+              .addLine("yarn build")
+              .addManualSection("build_postprocess", (m) =>
+                m.addLine("@echo 'customize your build steps here'"),
+              ),
+          ),
+      )
+      .lock()
+      .saveToFile();
+    expect(fs.readFileSync(filePath, "utf-8")).toMatchSnapshot();
+  });
 });
