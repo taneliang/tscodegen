@@ -266,31 +266,3 @@ what generated output looks like for each of these.
   docblock. For scripts invoked as executables, either prepend the
   shebang yourself after locking or invoke them via the interpreter
   directly.
-
-Example Terraform fragment (note the manual section buried inside
-`tags = { ... }`, which survives regeneration along with whatever the
-author adds inside it):
-
-```typescript
-new CodeFile("main.tf", { commentSyntax: { kind: "line", prefix: "# " } })
-  .build((b) =>
-    b
-      .addLine('resource "aws_s3_bucket" "logs" {')
-      .indent("  ", (res) =>
-        res
-          .addLine('bucket = "logs"')
-          .addLine("tags = {")
-          .indent("  ", (tags) =>
-            tags
-              .addLine('Name = "logs"')
-              .addManualSection("extra_tags", (m) =>
-                m.addLine('Team = "platform"'),
-              ),
-          )
-          .addLine("}"),
-      )
-      .addLine("}"),
-  )
-  .lock()
-  .saveToFile();
-```
