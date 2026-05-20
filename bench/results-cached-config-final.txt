@@ -1,0 +1,14 @@
+tiny: addLine x5, no format, no lock                          n= 1000  33.4 µs/op
+tiny: addLine x5, no format, lock                             n= 1000  47.3 µs/op
+tiny: addLine x5, format, lock                                n=  200  1.49 ms/op
+medium: 100 lines, no format, lock                            n=  500  63.9 µs/op
+medium: 100 lines, format, lock                               n=  100  4.31 ms/op
+large: 1000 lines, no format, lock                            n=  100  231.5 µs/op
+large: 1000 lines, format, lock                               n=   30  48.03 ms/op
+regen: read file w/ 50 manual sections, regen, lock           n=  200  143.2 µs/op
+micro: CodeBuilder 1000 addLine                               n= 1000  94.9 µs/op
+micro: lockCode (1000 lines)                                  n= 1000  46.0 µs/op
+micro: verifyLock (1000 lines)                                n= 1000  44.0 µs/op
+micro: prettier format (1000 lines)                           n=   30  49.30 ms/op
+
+Wrote /home/user/tscodegen/bench/results.json

@@ -263,6 +263,49 @@ in the block.
       }
     });
 
+    test("should not leak resolved prettier config across different cwds", () => {
+      // Regression test for the cwd-keyed config cache: two adjacent
+      // format() calls in different cwds with different prettier
+      // configs must each use their own config, not whatever was
+      // cached first.
+      const originalCwd = process.cwd();
+      const dirA = fs.mkdtempSync(path.join(os.tmpdir(), "tscodegen-test-A-"));
+      const dirB = fs.mkdtempSync(path.join(os.tmpdir(), "tscodegen-test-B-"));
+      fs.writeFileSync(
+        path.join(dirA, "package.json"),
+        JSON.stringify({
+          name: "a",
+          prettier: { singleQuote: true, semi: false },
+        }),
+      );
+      fs.writeFileSync(
+        path.join(dirB, "package.json"),
+        JSON.stringify({
+          name: "b",
+          prettier: { singleQuote: false, semi: true },
+        }),
+      );
+
+      try {
+        process.chdir(dirA);
+        const a = new CodeBuilder({})
+          .addLine('const hello = "world"')
+          .format()
+          .toString();
+        process.chdir(dirB);
+        const b = new CodeBuilder({})
+          .addLine("const hello = 'world'")
+          .format()
+          .toString();
+        expect(a).toBe("const hello = 'world'\n");
+        expect(b).toBe('const hello = "world";\n');
+      } finally {
+        process.chdir(originalCwd);
+        removeDir(dirA);
+        removeDir(dirB);
+      }
+    });
+
     test("should re-synchronize the at-line-start flag after formatting", () => {
       // Regression test: before the fix, calling format() on a builder
       // with ambient indent left a stale atLineStart from the pre-format

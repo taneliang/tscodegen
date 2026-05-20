@@ -4,6 +4,34 @@ import type { ManualSectionMap } from "./types/ManualSectionMap";
 import { createDocblock } from "./sections/docblock";
 import { CommentSyntax, DEFAULT_COMMENT_SYNTAX } from "./types/CommentSyntax";
 
+type PrettierOptions = Parameters<typeof syncPrettier.format>[1];
+
+// Prettier config resolution walks the filesystem from cwd looking for
+// .prettierrc — measured at ~6.6 ms per call. Codegens that emit many
+// files were paying that cost once per `.format()` invocation. Cache the
+// resolved options keyed by cwd so the work is amortized across calls
+// without ignoring a directory change.
+const prettierOptionsByCwd = new Map<string, PrettierOptions>();
+function getPrettierOptions(): PrettierOptions {
+  const cwd = process.cwd();
+  const cached = prettierOptionsByCwd.get(cwd);
+  if (cached !== undefined) {
+    return cached;
+  }
+  let resolved: PrettierOptions = {};
+  try {
+    const configFilePath = syncPrettier.resolveConfigFile();
+    if (configFilePath) {
+      resolved =
+        syncPrettier.resolveConfig(cwd, { config: configFilePath }) ?? {};
+    }
+  } catch {
+    // Fall back to Prettier defaults when config resolution fails.
+  }
+  prettierOptionsByCwd.set(cwd, resolved);
+  return resolved;
+}
+
 export class CodeBuilder {
   #gennedCode = "";
   #hasManualSections = false;
@@ -187,20 +215,8 @@ export class CodeBuilder {
    * Formats the stored code with Prettier.
    */
   format(): this {
-    let options: Parameters<typeof syncPrettier.format>[1] = {};
-    try {
-      const configFilePath = syncPrettier.resolveConfigFile();
-      if (configFilePath) {
-        options =
-          syncPrettier.resolveConfig(process.cwd(), {
-            config: configFilePath,
-          }) ?? {};
-      }
-    } catch {
-      // Fall back to Prettier defaults when config resolution fails.
-    }
     this.#gennedCode = syncPrettier.format(this.#gennedCode, {
-      ...options,
+      ...getPrettierOptions(),
       parser: "typescript",
     });
     // Resynchronize the line-start flag with the newly-installed code so
