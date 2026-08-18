@@ -1,0 +1,4 @@
+[biome] tiny: 5 lines, format, lock                           n=  200  341.0 µs/op
+[biome] medium: 100 lines, format, lock                       n=  100  1.78 ms/op
+[biome] large: 1000 lines, format, lock                       n=   30  10.31 ms/op
+[biome] micro: format(1000 lines)                             n=   30  9.57 ms/op

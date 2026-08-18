@@ -3,5 +3,6 @@ eslint.config.mjs
 vitest.config.ts
 tsconfig.*
 src
+bench
 test-reports
 coverage
